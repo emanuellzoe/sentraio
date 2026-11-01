@@ -9,3 +9,5 @@ allowBuilds:
   near-sandbox: false
   near-workspaces: false
   secp256k1: false
+  sharp: false
+  unrs-resolver: false
