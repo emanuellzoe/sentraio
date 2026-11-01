@@ -13,7 +13,7 @@ export function Badge({ value, large = false }: { value: string; large?: boolean
   const size = large ? 'text-xl px-3 py-1' : 'text-xs';
   if (kind === 'good') return <span className={`badge badge-solid ${size}`}>{value.toUpperCase()}</span>;
   return (
-    <span className={`badge ${kind === 'mixed' ? 'dither-50' : 'hatch'} ${size}`}>
+    <span className={`badge ${kind === 'mixed' ? 'dither-50 badge-dither' : 'hatch badge-hatch'} ${size}`}>
       <span>{value.toUpperCase()}</span>
     </span>
   );

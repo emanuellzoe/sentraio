@@ -12,7 +12,10 @@
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "@sentineli/core": "workspace:*"
+    "@sentineli/core": "workspace:*",
+    "@sentineli/preflight": "workspace:*",
+    "@sentineli/guard": "workspace:*",
+    "near-api-js": "7.4.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
