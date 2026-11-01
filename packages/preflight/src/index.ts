@@ -4,3 +4,5 @@ export { runPreflight, worst } from './decide.ts';
 export { findLookalike, levenshtein, skeleton } from './lookalike.ts';
 export { JsonFileStore, MemoryStore } from './store.ts';
 export type * from './types.ts';
+export { startPreflightServer } from './server.ts';
+export type { CheckResponse, CheckStatus, PreflightServer, ServerOptions } from './server.ts';
