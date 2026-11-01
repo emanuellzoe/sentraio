@@ -1,0 +1,17 @@
+[package]
+name = "sentineli-vault"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Pinned: 5.30 links host functions that only exist from protocol 88 (testnet),
+# so its wasm fails with "Link Error" on mainnet (protocol 86 as of 2026-11-01).
+near-sdk = "=5.29.1"
+
+[dev-dependencies]
+near-sdk = { version = "=5.29.1", features = ["unit-testing"] }
+ed25519-dalek = "2"
