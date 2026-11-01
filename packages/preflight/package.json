@@ -1,0 +1,26 @@
+{
+  "name": "@sentineli/preflight",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Counterparty checks, sandbox simulation and approval signing for agent actions on a Sentineli vault.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./simulate": "./src/simulate.ts"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "test:sandbox": "node --test --test-concurrency=1 test/sandbox.e2e.ts"
+  },
+  "dependencies": {
+    "@sentineli/core": "workspace:*"
+  },
+  "optionalDependencies": {
+    "near-workspaces": "5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

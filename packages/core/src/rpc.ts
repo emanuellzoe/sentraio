@@ -49,10 +49,7 @@ export async function fetchFtDecimals(tokens: string[], { network = 'testnet', f
   const entries = await Promise.all(
     [...new Set(tokens)].map(async (token) => {
       try {
-        const r = await rpc<{ result: number[] }>(RPC_URLS[network].regular, 'query', {
-          request_type: 'call_function', finality: 'final', account_id: token, method_name: 'ft_metadata', args_base64: '',
-        }, 5_000, fetchImpl);
-        const meta = JSON.parse(Buffer.from(r.result).toString('utf8')) as { decimals?: number };
+        const meta = await viewFunction<{ decimals?: number }>(token, 'ft_metadata', {}, { network, fetchImpl });
         return typeof meta.decimals === 'number' ? ([token, meta.decimals] as const) : undefined;
       } catch {
         return undefined;
@@ -60,6 +57,41 @@ export async function fetchFtDecimals(tokens: string[], { network = 'testnet', f
     }),
   );
   return Object.fromEntries(entries.filter((e) => e !== undefined));
+}
+
+export interface AccountView {
+  amount: string;
+  locked: string;
+  code_hash: string;
+  storage_usage: number;
+  block_height: number;
+}
+
+export const EMPTY_CODE_HASH = '11111111111111111111111111111111';
+
+export interface ViewOptions {
+  network?: Network;
+  rpcUrl?: string;
+  fetchImpl?: typeof fetch;
+}
+
+/** `null` when the account does not exist. */
+export async function viewAccount(accountId: string, { network = 'testnet', rpcUrl, fetchImpl = fetch }: ViewOptions = {}): Promise<AccountView | null> {
+  try {
+    return await rpc<AccountView>(rpcUrl ?? RPC_URLS[network].regular, 'query', { request_type: 'view_account', finality: 'final', account_id: accountId }, 8_000, fetchImpl);
+  } catch (e) {
+    if (e instanceof RpcError && e.code === 'UNKNOWN_ACCOUNT') return null;
+    throw e;
+  }
+}
+
+/** Calls a view method and parses its JSON result. */
+export async function viewFunction<T>(contractId: string, method: string, args: unknown = {}, { network = 'testnet', rpcUrl, fetchImpl = fetch }: ViewOptions = {}): Promise<T> {
+  const r = await rpc<{ result: number[] }>(rpcUrl ?? RPC_URLS[network].regular, 'query', {
+    request_type: 'call_function', finality: 'final', account_id: contractId, method_name: method,
+    args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+  }, 8_000, fetchImpl);
+  return JSON.parse(Buffer.from(r.result).toString('utf8')) as T;
 }
 
 async function rpc<T>(url: string, method: string, params: unknown, timeoutMs: number, fetchImpl: typeof fetch): Promise<T> {

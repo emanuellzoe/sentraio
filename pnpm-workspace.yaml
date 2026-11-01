@@ -1,3 +1,10 @@
 packages:
   - packages/*
   - apps/*
+
+# near-sandbox's postinstall downloads neard 2.6.2, which cannot load current wasm.
+# Preflight's Simulator fetches a current neard on first run instead (SANDBOX_ARTIFACT_URL).
+allowBuilds:
+  near-sandbox: false
+  near-workspaces: false
+  secp256k1: false
