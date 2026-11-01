@@ -69,6 +69,15 @@ html {
   background: var(--ink);
   color: var(--paper);
 }
+/* primary: inverted. Its own class because .px-btn is unlayered and beats utilities. */
+.px-btn.px-btn-solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+.px-btn.px-btn-solid:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
 .px-btn:active {
   transform: translate(3px, 3px);
   box-shadow: none;
@@ -184,4 +193,22 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .ps-shot, .ps-shard, .ps-scan { display: none; }
   .ps-body { animation: none; }
+}
+
+/* ---- landing ---- */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  overflow-x: clip; /* full-bleed bands use 100vw */
+}
+.ticker-track {
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ticker-track { animation: none; }
 }
