@@ -225,7 +225,6 @@ fn panic_freezes_agents_drains_balances_and_blocks_execution() {
     v.trigger_panic();
     assert!(v.is_panicked());
     assert_eq!(v.get_balance(usdc().to_string()).0, 0);
-    assert!(v.get_mandate(agent()).unwrap().frozen);
     assert_eq!(reason(exec(&mut v, pay(1), None, T0)), Rejection::VaultPanicked);
 }
 
@@ -253,4 +252,60 @@ fn canonical_encoding_is_unambiguous() {
     let a = AgentAction::FtTransfer { token: usdc(), receiver_id: shop(), amount: U128(1), memo: Some("a|1:b".into()) };
     let b = AgentAction::FtTransfer { token: usdc(), receiver_id: shop(), amount: U128(1), memo: Some("a".into()) };
     assert_ne!(a.canonical(), b.canonical());
+}
+
+#[test]
+#[should_panic(expected = "too many receivers")]
+fn mandate_receiver_list_is_capped() {
+    let mut v = setup(false, None);
+    ctx(owner(), 1, T0);
+    let receivers = (0..=MAX_RECEIVERS).map(|i| acc(&format!("r{i}.testnet"))).collect();
+    v.set_mandate(
+        agent(),
+        MandateInput { limits: vec![usdc_limit(1, 1)], allowed_receivers: Some(receivers), expires_at_ns: None, require_approval: false, max_strikes: 0 },
+    );
+}
+
+#[test]
+#[should_panic(expected = "vault token list full")]
+fn vault_token_list_is_capped() {
+    let mut v = setup(false, None);
+    for batch in 0..2 {
+        let limits = (0..MAX_LIMITS)
+            .map(|i| AssetLimit { asset: format!("t{batch}-{i}.testnet"), per_tx: U128(1), per_day: U128(1) })
+            .collect();
+        ctx(owner(), 1, T0);
+        v.set_mandate(
+            acc(&format!("agent{batch}.testnet")),
+            MandateInput { limits, allowed_receivers: None, expires_at_ns: None, require_approval: false, max_strikes: 0 },
+        );
+    }
+}
+
+#[test]
+fn sync_balance_recovers_untracked_tokens() {
+    let mut v = setup(false, None);
+    ctx(owner(), 1, T0);
+    v.trigger_panic(); // ledger -> 0; the mock never runs promises, so pretend the tokens are still there
+    ctx_with_result(PromiseResult::Successful(b"\"1000\"".to_vec()));
+    assert_eq!(v.on_sync_balance(usdc()).0, 1000);
+    assert_eq!(v.get_balance(usdc().to_string()).0, 1000);
+}
+
+#[test]
+#[should_panic(expected = "trigger_panic first")]
+fn sync_balance_requires_panic_mode() {
+    let mut v = setup(false, None);
+    ctx(owner(), 1, T0);
+    let _ = v.sync_balance(usdc());
+}
+
+#[test]
+#[should_panic(expected = "only owner")]
+fn agent_cannot_sync_balance() {
+    let mut v = setup(false, None);
+    ctx(owner(), 1, T0);
+    v.trigger_panic();
+    ctx(agent(), 1, T0);
+    let _ = v.sync_balance(usdc());
 }

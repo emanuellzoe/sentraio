@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["vault"]
+members = ["vault", "registry"]
 
 [profile.release]
 codegen-units = 1

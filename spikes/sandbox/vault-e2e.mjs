@@ -7,6 +7,11 @@ const WASM = new URL('../../contracts/target/near/sentineli_vault/sentineli_vaul
 const check = (label, ok, extra = '') => console.log(`${ok ? 'PASS' : 'FAIL'}  ${label} ${extra}`);
 const ret = (r) => { try { return r.parseResult(); } catch { return null; } };
 
+const gasOf = (r) => [r.result.transaction_outcome, ...r.result.receipts_outcome].reduce((s, o) => s + BigInt(o.outcome.gas_burnt), 0n);
+const GAS = [];
+const meter = (label, r) => { GAS.push([label, gasOf(r)]); return r; };
+const printGas = () => { console.log('\nGAS (all receipts, Tgas -> NEAR at 0.0001 NEAR/Tgas)'); for (const [l, g] of GAS) console.log(`  ${l.padEnd(34)} ${(Number(g) / 1e12).toFixed(2).padStart(6)} Tgas  ~${(Number(g) / 1e12 * 0.0001).toFixed(5)} NEAR`); };
+
 const worker = await Worker.init();
 try {
   const root = worker.rootAccount;
@@ -42,11 +47,11 @@ try {
   const pay = (amount, receiver = shop.accountId) => ({ type: 'ft_transfer', token: token.accountId, receiver_id: receiver, amount, memo: null });
   const exec = (action, approval = null) => agent.callRaw(vault, 'execute', { action, approval }, { gas: '150000000000000' });
 
-  let r = await exec(pay(parseNEAR('1.5')));
+  let r = meter('execute ft_transfer (ok)', await exec(pay(parseNEAR('1.5'))));
   check('within limit -> executed', ret(r)?.status === 'executed', JSON.stringify(ret(r)));
   check('shop received', (await token.view('ft_balance_of', { account_id: shop.accountId })) === parseNEAR('1.5'));
 
-  r = await exec(pay(parseNEAR('3')));
+  r = meter('execute rejected (over limit)', await exec(pay(parseNEAR('3'))));
   check('over per_tx -> rejected', ret(r)?.reason === 'over_per_tx_limit');
 
   r = await exec(pay(parseNEAR('1'), 'attacker.test.near'));
@@ -76,7 +81,7 @@ try {
   const msg = await vault.view('get_approval_message', { agent_id: agent.accountId, action, expires_at_ns: expires });
   const sig = guardianKey.sign(Buffer.from(msg)).signature;
   const approval = { signature: Buffer.from(sig).toString('base64'), expires_at_ns: expires };
-  r = await exec(action, approval);
+  r = meter('execute with approval signature', await exec(action, approval));
   check('valid Preflight approval -> executed', ret(r)?.status === 'executed', JSON.stringify(ret(r)));
   r = await exec(action, approval);
   check('replayed approval -> rejected', ret(r)?.reason === 'bad_signature');
@@ -84,12 +89,22 @@ try {
   // panic by guardian: drain to owner
   const ownerBefore = BigInt(await token.view('ft_balance_of', { account_id: owner.accountId }));
   const vaultBal = BigInt(await vault.view('get_balance', { asset: token.accountId }));
-  await guardian.call(vault, 'trigger_panic', {}, { gas: '300000000000000' });
+  meter('trigger_panic (drain 1 asset)', await guardian.callRaw(vault, 'trigger_panic', {}, { gas: '300000000000000' }));
   const ownerAfter = BigInt(await token.view('ft_balance_of', { account_id: owner.accountId }));
   check('panic -> balance returned to owner', ownerAfter - ownerBefore === vaultBal, `(${vaultBal})`);
   r = await exec(pay(parseNEAR('1')));
   check('after panic -> rejected', ret(r)?.reason === 'vault_panicked');
 
+  // rescue: tokens sent with a plain ft_transfer are invisible to the ledger until synced
+  await owner.call(token, 'ft_transfer', { receiver_id: vault.accountId, amount: parseNEAR('2') }, { attachedDeposit: '1' });
+  check('plain ft_transfer is untracked', (await vault.view('get_balance', { asset: token.accountId })) === '0');
+  meter('sync_balance', await owner.callRaw(vault, 'sync_balance', { token: token.accountId }, { attachedDeposit: '1', gas: '50000000000000' }));
+  check('sync_balance recovers it', (await vault.view('get_balance', { asset: token.accountId })) === parseNEAR('2'));
+  const ob = BigInt(await token.view('ft_balance_of', { account_id: owner.accountId }));
+  await owner.call(vault, 'withdraw', { asset: token.accountId, amount: parseNEAR('2') }, { attachedDeposit: '1', gas: '50000000000000' });
+  check('owner withdraws recovered funds', BigInt(await token.view('ft_balance_of', { account_id: owner.accountId })) - ob === BigInt(parseNEAR('2')));
+
+  printGas();
 } finally {
   await worker.tearDown();
 }
