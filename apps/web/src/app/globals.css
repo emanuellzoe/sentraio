@@ -139,3 +139,49 @@ html {
     animation: none;
   }
 }
+
+/* ---- pixel shield (components/pixel-shield.tsx): an impact every 1s, at 0.8s past each second ---- */
+.pixel-shield {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+.ps-shot {
+  animation: ps-shot 3s infinite;
+  animation-timing-function: steps(14, end);
+}
+@keyframes ps-shot {
+  0% { transform: translateX(0); opacity: 1; }
+  60% { transform: translateX(var(--travel)); opacity: 1; }
+  60.01%, 100% { transform: translateX(var(--travel)); opacity: 0; }
+}
+.ps-shard {
+  opacity: 0;
+  animation: ps-shard 3s infinite;
+  animation-timing-function: steps(4, end);
+}
+@keyframes ps-shard {
+  0%, 59.9% { opacity: 0; transform: translate(0, 0); }
+  60% { opacity: 1; transform: translate(0, 0); }
+  75% { opacity: 1; transform: translate(var(--dx), var(--dy)); }
+  75.01%, 100% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
+}
+.ps-body {
+  animation: ps-hit 1s 0.8s infinite steps(1, end);
+}
+@keyframes ps-hit {
+  0% { transform: translate(1px, 0); }
+  8% { transform: translate(-1px, 0); }
+  16%, 100% { transform: translate(0, 0); }
+}
+.ps-scan {
+  animation: ps-scan 2.8s infinite steps(28, end);
+}
+@keyframes ps-scan {
+  from { transform: translateY(0); }
+  to { transform: translateY(28px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ps-shot, .ps-shard, .ps-scan { display: none; }
+  .ps-body { animation: none; }
+}
