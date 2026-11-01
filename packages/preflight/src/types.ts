@@ -59,7 +59,8 @@ export interface PreflightConfig {
   registryId?: string;
   /** Well-known accounts used for look-alike detection (in addition to history and allowlist). */
   knownAccounts?: string[];
-  nearblocksUrl?: string;
+  /** `null` disables the indexer check (e.g. local sandbox, which NearBlocks does not index). */
+  nearblocksUrl?: string | null;
   /** Accounts younger than this are flagged. Default 7. */
   newAccountDays?: number;
   /** Accounts with fewer transactions are flagged. Default 5. */

@@ -99,6 +99,7 @@ const NEARBLOCKS: Record<string, string> = { testnet: 'https://api-testnet.nearb
 
 /** Age and activity from the NearBlocks indexer. Indexer lag means "no record" is not proof of anything. */
 export async function receiverReputation(ctx: Ctx, receiverId: string): Promise<Signal[]> {
+  if (ctx.cfg.nearblocksUrl === null) return [];
   const base = ctx.cfg.nearblocksUrl ?? NEARBLOCKS[ctx.view.network ?? 'testnet'];
   const get = async (path: string) => {
     const res = await (ctx.view.fetchImpl ?? fetch)(`${base}/v1/account/${receiverId}${path}`, {
@@ -137,7 +138,7 @@ export async function priorInteraction(ctx: Ctx, req: PreflightRequest, mandate?
     return sig('prior_interaction', 'ok', 'Receiver is on the owner allowlist', id, 'vault');
   }
   if ((await ctx.store.knownReceivers(req.vaultId)).has(id)) {
-    return sig('prior_interaction', 'ok', 'Vault has paid this receiver before', id, 'local history');
+    return sig('prior_interaction', 'ok', 'Preflight approved payments to this receiver before', id, 'local history');
   }
   return sig('prior_interaction', 'warn', 'First payment to this receiver', `${req.vaultId} has never paid ${id}.`, 'local history');
 }
@@ -150,10 +151,11 @@ export async function registry(ctx: Ctx, req: PreflightRequest): Promise<Signal[
   const rows = await viewFunction<[string, RegistryStatus][]>(ctx.cfg.registryId, 'get_statuses', { account_ids: ids }, ctx.view);
   return rows.map(([id, status]) => {
     const role = id === req.action.receiver_id ? 'receiver' : 'token';
-    if (status === 'blocked') return sig(`registry_${role}`, 'block', `${role} is on the blocklist`, `${id} was confirmed malicious by a registry moderator.`, 'registry');
-    if (status === 'suspected') return sig(`registry_${role}`, 'warn', `${role} is widely reported`, `${id} has reports from several accounts (not yet confirmed). Review the evidence.`, 'registry');
-    if (status === 'warn') return sig(`registry_${role}`, 'warn', `${role} has a report`, `${id} has an unconfirmed report in the registry.`, 'registry');
-    return sig(`registry_${role}`, 'ok', `${role} has no reports`, id, 'registry');
+    const Role = role === 'receiver' ? 'Receiver' : 'Token';
+    if (status === 'blocked') return sig(`registry_${role}`, 'block', `${Role} is on the blocklist`, `${id} was confirmed malicious by a registry moderator.`, 'registry');
+    if (status === 'suspected') return sig(`registry_${role}`, 'warn', `${Role} is widely reported`, `${id} has reports from several accounts (not yet confirmed). Review the evidence.`, 'registry');
+    if (status === 'warn') return sig(`registry_${role}`, 'warn', `${Role} has a report`, `${id} has an unconfirmed report in the registry.`, 'registry');
+    return sig(`registry_${role}`, 'ok', `${Role} has no reports`, id, 'registry');
   });
 }
 
