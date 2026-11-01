@@ -1,0 +1,165 @@
+{
+  "final_execution_status": "FINAL",
+  "receipts": [
+    {
+      "predecessor_id": "owner.test.near",
+      "priority": 0,
+      "receipt": {
+        "Action": {
+          "actions": [
+            {
+              "FunctionCall": {
+                "args": "e30=",
+                "deposit": "0",
+                "gas": 5000000000000,
+                "method_name": "steal_everything"
+              }
+            }
+          ],
+          "gas_price": "1000000000",
+          "input_data_ids": [],
+          "is_promise_yield": false,
+          "output_data_receivers": [],
+          "signer_id": "owner.test.near",
+          "signer_public_key": "ed25519:U9ihAsBwrRWcZbMQzg2Y1rQhmYsFKiUvjiLNvGtDNUX"
+        }
+      },
+      "receipt_id": "A59dPLZYWSC4AY5gi8pRbkNz2ipaDU5syfryoVc1V1NJ",
+      "receiver_id": "dev-22289-29632.test.near"
+    },
+    {
+      "predecessor_id": "system",
+      "priority": 0,
+      "receipt": {
+        "Action": {
+          "actions": [
+            {
+              "Transfer": {
+                "deposit": "5799289772130800000000"
+              }
+            }
+          ],
+          "gas_price": "0",
+          "input_data_ids": [],
+          "is_promise_yield": false,
+          "output_data_receivers": [],
+          "signer_id": "owner.test.near",
+          "signer_public_key": "ed25519:U9ihAsBwrRWcZbMQzg2Y1rQhmYsFKiUvjiLNvGtDNUX"
+        }
+      },
+      "receipt_id": "3QxM2XzmFm7sX74RFxXBPAxqjHjod2LopwKvujoug189",
+      "receiver_id": "owner.test.near"
+    }
+  ],
+  "receipts_outcome": [
+    {
+      "block_hash": "Dg9QydWwc4cFssPxkM1iEkehL3BdvFS9AWBZQdkwEPCM",
+      "id": "A59dPLZYWSC4AY5gi8pRbkNz2ipaDU5syfryoVc1V1NJ",
+      "outcome": {
+        "executor_id": "dev-22289-29632.test.near",
+        "gas_burnt": 888099746812,
+        "logs": [],
+        "metadata": {
+          "contracts": [
+            {
+              "local": "Fm2aCpMQhiRy1udKZuXgJLwTh1VLsNBnfsPx7gmRRkCM"
+            }
+          ],
+          "gas_profile": [],
+          "version": 4
+        },
+        "receipt_ids": [
+          "3QxM2XzmFm7sX74RFxXBPAxqjHjod2LopwKvujoug189"
+        ],
+        "status": {
+          "Failure": {
+            "ActionError": {
+              "index": 0,
+              "kind": {
+                "FunctionCallError": {
+                  "MethodResolveError": "MethodNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tokens_burnt": "88809974681200000000"
+      },
+      "proof": []
+    },
+    {
+      "block_hash": "EVkcFtBCrUvkzwoZdCG56svQDSM9MRsnjuAUEjwM2t31",
+      "id": "3QxM2XzmFm7sX74RFxXBPAxqjHjod2LopwKvujoug189",
+      "outcome": {
+        "executor_id": "owner.test.near",
+        "gas_burnt": 223182562500,
+        "logs": [],
+        "metadata": {
+          "contracts": [
+            null
+          ],
+          "gas_profile": [],
+          "version": 4
+        },
+        "receipt_ids": [],
+        "status": {
+          "SuccessValue": ""
+        },
+        "tokens_burnt": "0"
+      },
+      "proof": []
+    }
+  ],
+  "status": {
+    "Failure": {
+      "ActionError": {
+        "index": 0,
+        "kind": {
+          "FunctionCallError": {
+            "MethodResolveError": "MethodNotFound"
+          }
+        }
+      }
+    }
+  },
+  "transaction": {
+    "actions": [
+      {
+        "FunctionCall": {
+          "args": "e30=",
+          "deposit": "0",
+          "gas": 5000000000000,
+          "method_name": "steal_everything"
+        }
+      }
+    ],
+    "hash": "BpVfpyrCAZqsLkNDJDTd2muAnHwsSGt6NJYHyZzQmetX",
+    "nonce": 2000008,
+    "priority_fee": 0,
+    "public_key": "ed25519:U9ihAsBwrRWcZbMQzg2Y1rQhmYsFKiUvjiLNvGtDNUX",
+    "receiver_id": "dev-22289-29632.test.near",
+    "signature": "ed25519:5cfssgD2nZ19wwyWcF3EsVMawiHXtYfj7FyBB5XcbGw9CRcjjsXcyAGRiw2BhuMAJr1LCSyi2e5nxMUoCd2gzT4y",
+    "signer_id": "owner.test.near"
+  },
+  "transaction_outcome": {
+    "block_hash": "F5jGWu4X1mFmEvBQtASz8SHiQ4bFv1fzF7dQwSXsVcPe",
+    "id": "BpVfpyrCAZqsLkNDJDTd2muAnHwsSGt6NJYHyZzQmetX",
+    "outcome": {
+      "executor_id": "owner.test.near",
+      "gas_burnt": 308917806870,
+      "logs": [],
+      "metadata": {
+        "gas_profile": null,
+        "version": 1
+      },
+      "receipt_ids": [
+        "A59dPLZYWSC4AY5gi8pRbkNz2ipaDU5syfryoVc1V1NJ"
+      ],
+      "status": {
+        "SuccessReceiptId": "A59dPLZYWSC4AY5gi8pRbkNz2ipaDU5syfryoVc1V1NJ"
+      },
+      "tokens_burnt": "30891780687000000000"
+    },
+    "proof": []
+  }
+}
