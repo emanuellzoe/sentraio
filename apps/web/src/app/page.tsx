@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PixelShield } from '@/components/pixel-shield';
 import { Badge } from '@/components/verdict';
 
 // Results from `pnpm demo:attack` (demo/attack/last-run.log): same agent, same invoices.
@@ -74,9 +75,10 @@ const Arrow = ({ label }: { label?: string }) => (
 export default function Home() {
   return (
     <div className="space-y-16">
-      <section className="space-y-5">
+      <section className="grid items-center gap-8 md:grid-cols-[1.35fr_1fr]">
+        <div className="space-y-5">
         <p className="badge badge-solid text-xs">NEAR Hackathon 2026 · Security · Open · DeFi</p>
-        <h1 className="font-pixel text-5xl leading-tight md:text-6xl">
+        <h1 className="font-pixel text-4xl leading-tight lg:text-5xl">
           A guard for AI agents
           <br />
           that hold money.
@@ -90,6 +92,11 @@ export default function Home() {
           <Link href="/vault" className="px-btn">Open the dashboard</Link>
           <Link href="/faillens" className="px-btn">Explain a transaction</Link>
           <Link href="/preflight" className="px-btn">Try Preflight</Link>
+        </div>
+        </div>
+        <div className="px-frame bg-paper p-4">
+          <PixelShield />
+          <p className="mt-2 border-t-2 border-ink pt-2 font-pixel text-xs">Attacks in · nothing through</p>
         </div>
       </section>
 
