@@ -58,6 +58,8 @@ test('warn waits for the operator; the agent token cannot confirm it', async () 
     assert.ok(ok.body.approval?.signature);
     assert.equal((await call(`/pending/${r.body.id}`, AGENT.token)).body.status, 'approved');
     assert.equal((await call(`/pending/${r.body.id}/confirm`, OPERATOR, { by: 'x' })).code, 409, 'answered only once');
+    assert.equal((await call('/checks', AGENT.token)).code, 401, 'decision log is operator-only');
+    assert.equal((await call('/checks', OPERATOR)).body.length, 1);
   } finally {
     await server.close();
   }

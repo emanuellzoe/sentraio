@@ -13,6 +13,15 @@ importers:
       '@sentineli/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@sentineli/guard':
+        specifier: workspace:*
+        version: link:../../packages/guard
+      '@sentineli/preflight':
+        specifier: workspace:*
+        version: link:../../packages/preflight
+      near-api-js:
+        specifier: 7.4.0
+        version: 7.4.0
       next:
         specifier: 16.4.3
         version: 16.4.3(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

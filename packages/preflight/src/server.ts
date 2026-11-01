@@ -2,6 +2,7 @@
 //   POST /check                {vaultId, agentId, action}  (agent token)
 //   GET  /pending/:id                                       (agent token: poll)
 //   GET  /pending                                           (operator token)
+//   GET  /checks                                            (operator token: decision log, newest first)
 //   POST /pending/:id/confirm  {by}                         (operator token)
 //   POST /pending/:id/reject   {by, reason?}                (operator token)
 // The agent token can only ask; confirming a warn needs the operator token, so a
@@ -60,8 +61,15 @@ export async function startPreflightServer(opts: ServerOptions): Promise<Preflig
     return c;
   };
 
+  const expireStale = () => {
+    for (const c of checks.values()) {
+      if (c.status === 'needs_human' && Date.now() - c.createdAt > (opts.humanTimeoutMs ?? 300_000)) publish({ ...c, status: 'expired' });
+    }
+  };
+
   const routes = async (req: IncomingMessage, path: string[], body: any): Promise<[number, unknown]> => {
     const role = tokenRole(req, opts);
+    expireStale();
     if (req.method === 'POST' && path[0] === 'check' && path.length === 1) {
       if (role !== 'agent') return [401, { error: 'agent token required' }];
       const request = body as PreflightRequest;
@@ -73,15 +81,17 @@ export async function startPreflightServer(opts: ServerOptions): Promise<Preflig
       return [200, strip(publish({ ...base, status: 'approved', approval: await sign(decision) }))];
     }
 
+    if (req.method === 'GET' && path[0] === 'checks' && path.length === 1) {
+      if (role !== 'operator') return [401, { error: 'operator token required' }];
+      return [200, [...checks.values()].sort((a, b) => b.createdAt - a.createdAt).slice(0, 200).map((c) => ({ ...strip(c), at: new Date(c.createdAt).toISOString() }))];
+    }
     if (path[0] !== 'pending') return [404, { error: 'not found' }];
     if (req.method === 'GET' && path.length === 1) {
       if (role !== 'operator') return [401, { error: 'operator token required' }];
       return [200, [...checks.values()].filter((c) => c.status === 'needs_human').map(strip)];
     }
-    const c = checks.get(path[1] ?? '');
-    if (!c) return [404, { error: 'unknown check' }];
-    if (c.status === 'needs_human' && Date.now() - c.createdAt > (opts.humanTimeoutMs ?? 300_000)) publish({ ...c, status: 'expired' });
-    const cur = checks.get(c.id)!;
+    const cur = checks.get(path[1] ?? '');
+    if (!cur) return [404, { error: 'unknown check' }];
 
     if (req.method === 'GET' && path.length === 2) {
       if (!role) return [401, { error: 'token required' }];

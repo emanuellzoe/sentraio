@@ -81,6 +81,7 @@ export function FailLens() {
           <select className="px-input" value={form.network} onChange={(e) => setForm({ ...form, network: e.target.value })}>
             <option value="testnet">testnet</option>
             <option value="mainnet">mainnet</option>
+            {process.env.NEXT_PUBLIC_NETWORK === 'local' && <option value="local">local sandbox</option>}
           </select>
         </label>
         <button className="px-btn self-end" disabled={state.loading}>
@@ -113,10 +114,15 @@ export function FailLens() {
             <Badge value={r.verdict} large />
             <p className="text-lg leading-snug">{r.headline}</p>
             <p className="text-xs md:col-span-2">
-              {r.network} · {r.signer} → {r.receiver} · {r.gasTgas} Tgas ·{' '}
-              <a className="underline" href={`https://${r.network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${r.hash}`} target="_blank" rel="noreferrer">
-                explorer ↗
-              </a>
+              {r.network} · {r.signer} → {r.receiver} · {r.gasTgas} Tgas
+              {r.network !== 'local' && (
+                <>
+                  {' · '}
+                  <a className="underline" href={`https://${r.network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${r.hash}`} target="_blank" rel="noreferrer">
+                    explorer ↗
+                  </a>
+                </>
+              )}
             </p>
           </div>
 

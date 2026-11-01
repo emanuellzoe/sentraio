@@ -5,7 +5,8 @@
   "scripts": {
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "demo:attack": "node demo/attack/run.ts"
+    "demo:attack": "node demo/attack/run.ts",
+    "dev:chain": "node demo/attack/dev-chain.ts"
   },
   "engines": {
     "node": ">=24"
