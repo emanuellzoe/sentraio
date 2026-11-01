@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* 1-bit system: exactly two colours. Depth and state come from dither patterns,
+   never from greys, so every surface stays pure black or pure white. */
+:root {
+  --ink: #000;
+  --paper: #fff;
+  --px: 2px;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --font-pixel: var(--font-silkscreen);
+  --font-mono: var(--font-plex-mono);
+  --radius-*: initial;
+}
+
+* {
+  border-radius: 0 !important;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---- dither fills (SVG data URIs keep them crisp at any zoom) ---- */
+.dither-25 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+  image-rendering: pixelated;
+}
+.dither-50 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+  image-rendering: pixelated;
+}
+.hatch {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' shape-rendering='crispEdges'%3E%3Cpath d='M0 6L6 0M-1 1L1 -1M5 7L7 5' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  image-rendering: pixelated;
+}
+
+/* ---- pixel frame: hard 2px border plus a stepped drop shadow ---- */
+.px-frame {
+  border: var(--px) solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.px-frame-sm {
+  border: var(--px) solid var(--ink);
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+
+.px-btn {
+  border: var(--px) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 0 var(--ink);
+  font-family: var(--font-silkscreen);
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: none;
+}
+.px-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.px-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+.px-btn:disabled {
+  cursor: wait;
+  background: var(--paper);
+  color: var(--ink);
+}
+.px-btn:focus-visible,
+.px-input:focus-visible {
+  outline: var(--px) dashed var(--ink);
+  outline-offset: 3px;
+}
+
+.px-input {
+  border: var(--px) solid var(--ink);
+  background: var(--paper);
+  padding: 0.5rem 0.65rem;
+  width: 100%;
+}
+.px-input::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+
+/* status badges: fill pattern carries the meaning, text repeats it */
+.badge {
+  display: inline-block;
+  border: var(--px) solid var(--ink);
+  font-family: var(--font-silkscreen);
+  padding: 0 0.4rem;
+  line-height: 1.5;
+}
+.badge-solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+.badge-dither {
+  background-color: var(--paper);
+}
+.badge-dither > span {
+  background: var(--paper);
+  padding: 0 0.15rem;
+}
+.badge-hatch > span {
+  background: var(--paper);
+  padding: 0 0.15rem;
+}
+
+.cursor::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 0.8em;
+  margin-left: 0.2em;
+  background: currentColor;
+  vertical-align: -0.05em;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor::after {
+    animation: none;
+  }
+}
