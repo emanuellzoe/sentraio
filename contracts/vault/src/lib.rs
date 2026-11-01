@@ -25,7 +25,15 @@ use near_sdk::{
 const GAS_FT_TRANSFER: Gas = Gas::from_tgas(10);
 const GAS_FT_TRANSFER_CALL: Gas = Gas::from_tgas(100);
 const GAS_CALLBACK: Gas = Gas::from_tgas(15);
+/// The withdraw callback only re-credits on failure (~2 Tgas burnt). Kept small because
+/// `trigger_panic` reserves (ft_transfer + this) for up to 10 tokens in one transaction.
+const GAS_WITHDRAW_CALLBACK: Gas = Gas::from_tgas(5);
+const GAS_FT_BALANCE_OF: Gas = Gas::from_tgas(5);
 const ONE_YOCTO: NearToken = NearToken::from_yoctonear(1);
+pub const MAX_LIMITS: usize = 10;
+pub const MAX_RECEIVERS: usize = 50;
+/// Distinct tokens the vault accepts; balances therefore hold at most MAX_TOKENS + NEAR.
+pub const MAX_TOKENS: u32 = 10;
 /// Callback results we read are tiny (a JSON U128 at most).
 const MAX_RESULT_LEN: usize = 128;
 /// Approvals must be short-lived: limits the gap between simulation and execution.
@@ -245,11 +253,21 @@ impl Vault {
     #[payable]
     pub fn set_mandate(&mut self, agent_id: AccountId, mandate: MandateInput) {
         self.assert_owner();
+        // Caps keep `execute` cheap (whole mandate is loaded per call) and keep
+        // `trigger_panic`, which drains every asset, far below the gas limit.
+        require!(mandate.limits.len() <= MAX_LIMITS, "too many asset limits (max 10)");
+        require!(
+            mandate.allowed_receivers.as_ref().map_or(0, Vec::len) <= MAX_RECEIVERS,
+            "too many receivers (max 50)"
+        );
         for l in &mandate.limits {
             require!(l.per_tx.0 <= l.per_day.0, "per_tx cannot exceed per_day");
             if l.asset != NATIVE {
                 let token: AccountId = l.asset.parse().unwrap_or_else(|_| env::panic_str("asset must be NEAR or a token account id"));
-                self.tokens.insert(token);
+                if !self.tokens.contains(&token) {
+                    require!(self.tokens.len() < MAX_TOKENS, "vault token list full (max 10)");
+                    self.tokens.insert(token);
+                }
             }
         }
         match self.mandates.get_mut(&agent_id) {
@@ -295,7 +313,9 @@ impl Vault {
         self.send_to_owner(asset, amount.0)
     }
 
-    /// Emergency stop: freezes every agent and sends every balance back to the owner.
+    /// Emergency stop: blocks every agent and sends every balance back to the owner.
+    /// No loop over agents: the `panicked` flag is checked first in every `execute`,
+    /// so cost stays constant however many agents exist (at most 11 assets are drained).
     /// Removing the agent's access key happens in the same owner transaction, client-side
     /// (a contract cannot delete keys on another account).
     #[payable]
@@ -307,11 +327,6 @@ impl Vault {
             require!(self.is_guardian(&caller), "only owner or guardian");
         }
         self.panicked = true;
-        for (_, m) in self.mandates.iter_mut() {
-            if !m.frozen {
-                m.freeze("panic".to_string());
-            }
-        }
         let drained: Vec<(String, u128)> = self.balances.iter().filter(|(_, v)| **v > 0).map(|(k, v)| (k.clone(), *v)).collect();
         for (asset, amount) in &drained {
             self.balances.insert(asset.clone(), 0);
@@ -345,6 +360,41 @@ impl Vault {
             self.credit(&asset, amount.0);
             events::emit("withdraw_failed", json!({ "asset": asset, "amount": amount }));
         }
+    }
+
+    /// Rescue path: set the ledger for `token` to the vault's real balance on that token,
+    /// recovering funds that arrived untracked (plain `ft_transfer` to the vault, or a
+    /// refund whose callback ran out of gas). Only while panicked, so no agent action
+    /// can be in flight between the balance read and the ledger write.
+    #[payable]
+    pub fn sync_balance(&mut self, token: AccountId) -> Promise {
+        self.assert_owner();
+        require!(self.panicked, "trigger_panic first: sync only runs with agents stopped");
+        require!(self.tokens.contains(&token), "unknown token");
+        Promise::new(token.clone())
+            .function_call(
+                "ft_balance_of",
+                json!({ "account_id": env::current_account_id() }).to_string().into_bytes(),
+                NearToken::from_yoctonear(0),
+                GAS_FT_BALANCE_OF,
+            )
+            .then(
+                Self::ext(env::current_account_id())
+                    .with_static_gas(GAS_WITHDRAW_CALLBACK)
+                    .on_sync_balance(token),
+            )
+    }
+
+    #[private]
+    pub fn on_sync_balance(&mut self, token: AccountId) -> U128 {
+        let actual = env::promise_result_checked(0, MAX_RESULT_LEN)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<U128>(&bytes).ok())
+            .unwrap_or_else(|| env::panic_str("could not read token balance"));
+        let before = self.get_balance(token.to_string());
+        self.balances.insert(token.to_string(), actual.0);
+        events::emit("balance_synced", json!({ "asset": token, "before": before, "after": actual }));
+        actual
     }
 
     // ------------------------------------------------------------------ views
@@ -493,7 +543,7 @@ impl Vault {
             )
             .then(
                 Self::ext(env::current_account_id())
-                    .with_static_gas(GAS_CALLBACK)
+                    .with_static_gas(GAS_WITHDRAW_CALLBACK)
                     .on_withdraw_resolved(asset, U128(amount)),
             )
     }

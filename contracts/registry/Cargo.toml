@@ -1,0 +1,15 @@
+[package]
+name = "sentineli-registry"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Same pin as the vault: 5.30 wasm does not link on mainnet protocol 86.
+near-sdk = "=5.29.1"
+
+[dev-dependencies]
+near-sdk = { version = "=5.29.1", features = ["unit-testing"] }
