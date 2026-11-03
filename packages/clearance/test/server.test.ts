@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { generateKeyPairSync } from 'node:crypto';
 import { test } from 'node:test';
-import { base58Encode, startPreflightServer } from '../src/index.ts';
+import { base58Encode, startClearanceServer } from '../src/index.ts';
 import type { CheckResponse } from '../src/index.ts';
 import { FakeChain } from './fake-chain.ts';
 
@@ -23,7 +23,7 @@ async function setup() {
     .view(VAULT, 'get_mandate', () => ({ allowed_receivers: ['shop.testnet'], frozen: false }))
     .view(VAULT, 'get_approval_message', (a) => `msg|${a.expires_at_ns}`)
     .view('registry.testnet', 'get_statuses', (a) => a.account_ids.map((id: string) => [id, 'clean']));
-  const server = await startPreflightServer({
+  const server = await startClearanceServer({
     guardianSecretKey: guardianSecret(), agentToken: AGENT.token, operatorToken: OPERATOR,
     fetchImpl: c.fetch, now: () => c.now, expectedVaultCodeHashes: ['V1'], registryId: 'registry.testnet',
   });

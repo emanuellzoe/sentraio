@@ -4,7 +4,7 @@
 import nw from 'near-workspaces';
 const { Worker, parseNEAR } = nw;
 
-const WASM = new URL('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
 const gasOf = (r) => [r.result.transaction_outcome, ...r.result.receipts_outcome].reduce((s, o) => s + BigInt(o.outcome.gas_burnt), 0n);
 const tgas = (g) => (Number(g) / 1e12).toFixed(2);
 

@@ -16,7 +16,7 @@ fn agent() -> AccountId {
     acc("agent.owner.testnet")
 }
 fn guardian_acc() -> AccountId {
-    acc("preflight.testnet")
+    acc("clearance.testnet")
 }
 fn usdc() -> AccountId {
     acc("usdc.testnet")

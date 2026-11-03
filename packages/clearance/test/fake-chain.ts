@@ -1,4 +1,4 @@
-// Minimal stand-in for a NEAR RPC node + NearBlocks, so every Preflight branch can be driven.
+// Minimal stand-in for a NEAR RPC node + NearBlocks, so every Clearance branch can be driven.
 export const EMPTY = '11111111111111111111111111111111';
 const DAY_NS = 86_400n * 1_000_000_000n;
 

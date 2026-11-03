@@ -1,17 +1,17 @@
 {
-  "name": "sentineli",
+  "name": "countersign",
   "private": true,
   "type": "module",
   "scripts": {
     "build:contracts": "cd contracts/vault && cargo near build non-reproducible-wasm && cd ../registry && cargo near build non-reproducible-wasm",
     "test:contracts": "cd contracts && cargo test",
     "test": "pnpm -r test",
-    "test:sandbox": "pnpm --filter @sentineli/preflight test:sandbox",
+    "test:sandbox": "pnpm --filter @countersign/clearance test:sandbox",
     "typecheck": "pnpm -r typecheck",
     "demo:attack": "node demo/attack/run.ts",
     "dev:chain": "node demo/attack/dev-chain.ts",
-    "web": "pnpm --filter @sentineli/web dev",
-    "testnet:preflight": "node demo/attack/testnet.ts"
+    "web": "pnpm --filter @countersign/web dev",
+    "testnet:clearance": "node demo/attack/testnet.ts"
   },
   "engines": {
     "node": ">=24"

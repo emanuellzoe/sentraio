@@ -1,4 +1,4 @@
-// Throwaway spike: can Preflight fork a real testnet token into a local sandbox,
+// Throwaway spike: can Clearance fork a real testnet token into a local sandbox,
 // run an ft_transfer, and read balance deltas + receipt outcomes fast enough?
 import nw from 'near-workspaces';
 const { Worker, parseNEAR } = nw;
@@ -37,7 +37,7 @@ try {
   const bal = async (acc) => BigInt(await token.view('ft_balance_of', { account_id: acc.accountId }));
   const before = { agent: await bal(agent), victim: await bal(victim) };
 
-  // 2) The simulated action: what Preflight would run before letting the agent sign for real.
+  // 2) The simulated action: what Clearance would run before letting the agent sign for real.
   const amount = parseNEAR('1.5');
   const result = await agent.callRaw(token, 'ft_transfer', { receiver_id: victim.accountId, amount }, { attachedDeposit: '1' });
   lap('simulated ft_transfer');
@@ -53,7 +53,7 @@ try {
     logs: r.outcome.logs,
   })));
 
-  // 3) A failing action, to confirm we can surface failed receipts (FailLens input).
+  // 3) A failing action, to confirm we can surface failed receipts (Tx X-Ray input).
   const bad = await agent.callRaw(token, 'ft_transfer', { receiver_id: 'nobody.test.near', amount }, { attachedDeposit: '1' });
   lap('simulated failing ft_transfer');
   console.log('failed ok   ', bad.failed, JSON.stringify(bad.receiptFailureMessages ?? bad.errors ?? []).slice(0, 300));

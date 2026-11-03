@@ -1,5 +1,5 @@
-//! Sentineli vault: holds funds for AI agents and only moves them inside an
-//! owner-set mandate, optionally gated by a Preflight approval signature.
+//! Countersign vault: holds funds for AI agents and only moves them inside an
+//! owner-set mandate, optionally gated by a Clearance approval signature.
 //!
 //! The agent signs `execute` with a function-call key scoped to this contract,
 //! so it can never move funds that are not here, nor bypass the checks below.
@@ -39,7 +39,7 @@ const MAX_RESULT_LEN: usize = 128;
 /// Approvals must be short-lived: limits the gap between simulation and execution.
 pub const MAX_APPROVAL_TTL_NS: u64 = 10 * 60 * 1_000_000_000;
 
-/// Signs Preflight approvals (`public_key`) and may freeze agents (`account_id`).
+/// Signs Clearance approvals (`public_key`) and may freeze agents (`account_id`).
 #[near(serializers = [borsh, json])]
 #[derive(Clone, Debug)]
 pub struct Guardian {
@@ -345,7 +345,7 @@ impl Vault {
         events::emit("panic_cleared", json!({}));
     }
 
-    /// Guardian (e.g. the Preflight service) or owner. No deposit so a function-call key works.
+    /// Guardian (e.g. the Clearance service) or owner. No deposit so a function-call key works.
     pub fn freeze(&mut self, agent_id: AccountId, reason: String) {
         let caller = env::predecessor_account_id();
         require!(caller == self.owner_id || self.is_guardian(&caller), "only owner or guardian");

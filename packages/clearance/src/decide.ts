@@ -1,7 +1,7 @@
 import { lookalike, priorInteraction, receiverAccount, receiverReputation, registry, tokenContract, vaultIntegrity, vaultPolicy } from './signals.ts';
 import type { Ctx } from './signals.ts';
 import { MemoryStore } from './store.ts';
-import type { Decision, Level, PreflightConfig, PreflightRequest, Signal } from './types.ts';
+import type { Decision, Level, ClearanceConfig, ClearanceRequest, Signal } from './types.ts';
 
 const RANK: Record<Level, number> = { ok: 0, warn: 1, block: 2 };
 export const worst = (levels: Level[]): Level => levels.reduce<Level>((a, b) => (RANK[b] > RANK[a] ? b : a), 'ok');
@@ -10,7 +10,7 @@ export const worst = (levels: Level[]): Level => levels.reduce<Level>((a, b) => 
  * Deterministic decision: every check returns ok / warn / block and the verdict is the
  * worst of them. A check that errors becomes a warn, never a silent pass.
  */
-export async function runPreflight(req: PreflightRequest, cfg: PreflightConfig = {}): Promise<Decision> {
+export async function runClearance(req: ClearanceRequest, cfg: ClearanceConfig = {}): Promise<Decision> {
   const ctx: Ctx = {
     cfg,
     view: { network: cfg.network ?? 'testnet', rpcUrl: cfg.rpcUrl, fetchImpl: cfg.fetchImpl },
@@ -22,7 +22,7 @@ export async function runPreflight(req: PreflightRequest, cfg: PreflightConfig =
       const r = await run();
       return Array.isArray(r) ? r : [r];
     } catch (e) {
-      return [{ id, level: 'warn', title: `Check "${id}" could not run`, detail: (e as Error).message, source: 'preflight' }];
+      return [{ id, level: 'warn', title: `Check "${id}" could not run`, detail: (e as Error).message, source: 'clearance' }];
     }
   };
 

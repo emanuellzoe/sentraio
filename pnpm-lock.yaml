@@ -10,18 +10,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@countersign/clearance':
+        specifier: workspace:*
+        version: link:../../packages/clearance
+      '@countersign/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@countersign/guard':
+        specifier: workspace:*
+        version: link:../../packages/guard
       '@hot-labs/near-connect':
         specifier: ^0.12.0
         version: 0.12.0
-      '@sentineli/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@sentineli/guard':
-        specifier: workspace:*
-        version: link:../../packages/guard
-      '@sentineli/preflight':
-        specifier: workspace:*
-        version: link:../../packages/preflight
       near-api-js:
         specifier: 7.4.0
         version: 7.4.0
@@ -56,15 +56,15 @@ importers:
 
   demo/attack:
     dependencies:
-      '@sentineli/core':
+      '@countersign/clearance':
+        specifier: workspace:*
+        version: link:../../packages/clearance
+      '@countersign/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@sentineli/guard':
+      '@countersign/guard':
         specifier: workspace:*
         version: link:../../packages/guard
-      '@sentineli/preflight':
-        specifier: workspace:*
-        version: link:../../packages/preflight
       near-api-js:
         specifier: 7.4.0
         version: 7.4.0
@@ -79,37 +79,9 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  packages/core:
-    devDependencies:
-      '@types/node':
-        specifier: ^24.0.0
-        version: 24.19.2
-      typescript:
-        specifier: ^5.9.0
-        version: 5.9.3
-
-  packages/guard:
+  packages/clearance:
     dependencies:
-      '@sentineli/core':
-        specifier: workspace:*
-        version: link:../core
-      '@sentineli/preflight':
-        specifier: workspace:*
-        version: link:../preflight
-      near-api-js:
-        specifier: 7.4.0
-        version: 7.4.0
-    devDependencies:
-      '@types/node':
-        specifier: ^24.0.0
-        version: 24.19.2
-      typescript:
-        specifier: ^5.9.0
-        version: 5.9.3
-
-  packages/preflight:
-    dependencies:
-      '@sentineli/core':
+      '@countersign/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -123,6 +95,34 @@ importers:
       near-workspaces:
         specifier: 5.0.0
         version: 5.0.0
+
+  packages/core:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.2
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  packages/guard:
+    dependencies:
+      '@countersign/clearance':
+        specifier: workspace:*
+        version: link:../clearance
+      '@countersign/core':
+        specifier: workspace:*
+        version: link:../core
+      near-api-js:
+        specifier: 7.4.0
+        version: 7.4.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.2
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
 
 packages:
 

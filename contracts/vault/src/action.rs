@@ -77,7 +77,7 @@ impl AgentAction {
     }
 }
 
-/// Preflight's signed go-ahead for exactly one action.
+/// Clearance's signed go-ahead for exactly one action.
 #[near(serializers = [json])]
 #[derive(Clone, Debug)]
 pub struct Approval {
@@ -94,7 +94,7 @@ pub fn approval_message(
     action: &AgentAction,
 ) -> String {
     format!(
-        "sentineli-approval:v1|{}",
+        "countersign-approval:v1|{}",
         encode(&[
             vault.as_str(),
             agent.as_str(),

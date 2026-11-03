@@ -1,5 +1,5 @@
-import { verifyOperatorProof } from '@sentineli/preflight';
-import type { CheckResponse, OperatorProof } from '@sentineli/preflight';
+import { verifyOperatorProof } from '@countersign/clearance';
+import type { CheckResponse, OperatorProof } from '@countersign/clearance';
 import { chain, isLocalMode } from '@/lib/config';
 import { operator } from '@/lib/server';
 
@@ -7,7 +7,7 @@ import { operator } from '@/lib/server';
 const seenNonces = new Set<string>();
 
 export async function GET() {
-  if (!process.env.PREFLIGHT_URL) return Response.json({ unavailable: true });
+  if (!process.env.CLEARANCE_URL) return Response.json({ unavailable: true });
   try {
     const [pending, checks] = await Promise.all([operator<CheckResponse[]>('/pending'), operator<(CheckResponse & { at: string })[]>('/checks')]);
     return Response.json({ pending, checks });

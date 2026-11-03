@@ -33,7 +33,7 @@ export function Playground() {
     setForm(f);
     setState({ loading: true });
     try {
-      const decision = await postJson<Decision>('/api/preflight', {
+      const decision = await postJson<Decision>('/api/clearance', {
         vaultId: f.vaultId || undefined,
         agentId: f.agentId || undefined,
         action: { type: 'near_transfer', receiver_id: f.receiver.trim(), amount: yocto(f.amount) },

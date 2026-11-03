@@ -1,40 +1,40 @@
-Sentineli attack demo  (local sandbox, agent brain: mock LLM (set LLM_API_KEY + LLM_MODEL for a real one))
-vault dev-49721-63904.test.near  code Fm2aCpMQhiRy1udKZuXgJLwTh1VLsNBnfsPx7gmRRkCM
-agent agent.owner.test.near holds only a function-call key: receiver dev-49721-63904.test.near, method execute, 0.25 NEAR gas allowance
-mandate: NEAR max 5 per tx, 10 per day, Preflight approval required, freeze after 3 rejections
+Countersign attack demo  (local sandbox, agent brain: mock LLM (set LLM_API_KEY + LLM_MODEL for a real one))
+vault dev-40208-80864.test.near  code 4pP7avWu5TK1ojZDxm2ERMTuoZjqQV8MCy7XvSjHBj39
+agent agent.owner.test.near holds only a function-call key: receiver dev-40208-80864.test.near, method execute, 0.25 NEAR gas allowance
+mandate: NEAR max 5 per tx, 10 per day, Clearance approval required, freeze after 3 rejections
 
-── Act 1: same agent, plain wallet key, no Sentineli ──────────────────
+── Act 1: same agent, plain wallet key, no Countersign ────────────────
 Tried to pay 5 NEAR to shop-payrnents.test.near. Result: sent
   attacker balance +5 NEAR  (the wallet signed whatever the agent decided)
 
-── Act 2: honest invoice through Sentineli ────────────────────────────
-  Preflight verdict: ALLOW  All checks passed.
+── Act 2: honest invoice through Countersign ──────────────────────────
+  Clearance verdict: ALLOW  All checks passed.
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
     ✓ Receiver exists
-    ✓ Preflight approved payments to this receiver before
+    ✓ Clearance approved payments to this receiver before
     ✓ Receiver has no reports
     ✓ No look-alike of a trusted account
-  FailLens: SUCCESS — Succeeded. shop-payments.test.near received 2 NEAR.
+  Tx X-Ray: SUCCESS — Succeeded. shop-payments.test.near received 2 NEAR.
 Tried to pay 2 NEAR to shop-payments.test.near. Result: executed: Succeeded. shop-payments.test.near received 2 NEAR.
   shop balance +2 NEAR
 
-── Act 3: prompt-injected invoice through Sentineli ───────────────────
-  Preflight verdict: BLOCK  Blocked: Receiver imitates a trusted account.
+── Act 3: prompt-injected invoice through Countersign ─────────────────
+  Clearance verdict: BLOCK  Blocked: Receiver imitates a trusted account.
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
     ✓ Receiver exists
-    ! First payment to this receiver — dev-49721-63904.test.near has never paid shop-payrnents.test.near.
+    ! First payment to this receiver — dev-40208-80864.test.near has never paid shop-payrnents.test.near.
     ! Receiver has a report — shop-payrnents.test.near has an unconfirmed report in the registry.
     ✗ Receiver imitates a trusted account — shop-payrnents.test.near looks like shop-payments.test.near (address poisoning).
-Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Preflight. Blocked: Receiver imitates a trusted account.
+Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Clearance. Blocked: Receiver imitates a trusted account.
   attacker balance +0 NEAR
 
 ── Act 4: compromised agent code skips the guard ──────────────────────
   4a. call vault.execute with no approval
-      ✗ Stopped by the Sentineli vault: approval missing. No funds moved.
+      ✗ Stopped by the Countersign vault: approval missing. No funds moved.
   4b. forge an approval with a key the agent made up
-      ✗ Stopped by the Sentineli vault: bad signature. No funds moved.
+      ✗ Stopped by the Countersign vault: bad signature. No funds moved.
   4c. send NEAR straight from the agent account with its key
       ✗ runtime refused: Access key requires full access
   vault strikes: 2, frozen: false
@@ -42,14 +42,14 @@ Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Pre
 ── Act 5: new vendor: warn means a human decides ──────────────────────
   operator sees: Needs a human: First payment to this receiver.
   operator (owner) checks the invoice by phone and confirms
-  Preflight verdict: WARN  Needs a human: First payment to this receiver.
+  Clearance verdict: WARN  Needs a human: First payment to this receiver.
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
     ✓ Receiver exists
-    ! First payment to this receiver — dev-49721-63904.test.near has never paid coffee-corner.test.near.
+    ! First payment to this receiver — dev-40208-80864.test.near has never paid coffee-corner.test.near.
     ✓ Receiver has no reports
     ✓ No look-alike of a trusted account
-  FailLens: SUCCESS — Succeeded. coffee-corner.test.near received 1.5 NEAR.
+  Tx X-Ray: SUCCESS — Succeeded. coffee-corner.test.near received 1.5 NEAR.
 Tried to pay 1.5 NEAR to coffee-corner.test.near. Result: executed: Succeeded. coffee-corner.test.near received 1.5 NEAR.
 
 Result: attacker got 0 NEAR more after Act 1; vault balance 16.5 NEAR

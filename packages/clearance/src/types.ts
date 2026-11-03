@@ -1,4 +1,4 @@
-import type { Network, TxReport } from '@sentineli/core';
+import type { Network, TxReport } from '@countersign/core';
 
 /** Mirrors the vault's `AgentAction` JSON. */
 export type AgentAction =
@@ -6,7 +6,7 @@ export type AgentAction =
   | { type: 'ft_transfer_call'; token: string; receiver_id: string; amount: string; msg: string }
   | { type: 'near_transfer'; receiver_id: string; amount: string };
 
-export interface PreflightRequest {
+export interface ClearanceRequest {
   vaultId: string;
   agentId: string;
   action: AgentAction;
@@ -36,14 +36,14 @@ export type Verdict = 'allow' | 'warn' | 'block';
 
 export interface Decision {
   verdict: Verdict;
-  request: PreflightRequest;
+  request: ClearanceRequest;
   signals: Signal[];
   simulation?: SimulationResult;
   summary: string;
   checkedAt: string;
 }
 
-/** Local memory Preflight keeps between runs. */
+/** Local memory Clearance keeps between runs. */
 export interface Store {
   knownReceivers(vaultId: string): Promise<Set<string>>;
   rememberReceiver(vaultId: string, receiverId: string): Promise<void>;
@@ -51,7 +51,7 @@ export interface Store {
   saveCodeHash(accountId: string, hash: string): Promise<void>;
 }
 
-export interface PreflightConfig {
+export interface ClearanceConfig {
   network?: Network;
   rpcUrl?: string;
   /** code_hash values of audited vault builds; anything else is blocked. */
@@ -66,7 +66,7 @@ export interface PreflightConfig {
   /** Accounts with fewer transactions are flagged. Default 5. */
   minTxCount?: number;
   store?: Store;
-  simulate?: (req: PreflightRequest) => Promise<SimulationResult>;
+  simulate?: (req: ClearanceRequest) => Promise<SimulationResult>;
   fetchImpl?: typeof fetch;
   now?: () => Date;
 }

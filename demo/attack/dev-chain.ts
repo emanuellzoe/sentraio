@@ -1,19 +1,19 @@
 // Long-running local chain for frontend work until the testnet deploy:
 //   pnpm dev:chain      (Ctrl-C to stop)
 // Starts a sandbox, deploys vault + registry, creates owner/agent/vendors, runs the
-// Preflight service, seeds some activity, and writes apps/web/.env.local.
+// Clearance service, seeds some activity, and writes apps/web/.env.local.
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { Guard } from '@sentineli/guard';
-import { base58Encode, MemoryStore, startPreflightServer, useCurrentSandbox } from '@sentineli/preflight';
+import { Guard } from '@countersign/guard';
+import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@countersign/clearance';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import nw from 'near-workspaces';
 
 const here = (p: string) => new URL(p, import.meta.url).pathname;
-const VAULT_WASM = here('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm');
-const REGISTRY_WASM = here('../../contracts/target/near/sentineli_registry/sentineli_registry.wasm');
-const PREFLIGHT_PORT = Number(process.env.PREFLIGHT_PORT ?? 4010);
+const VAULT_WASM = here('../../contracts/target/near/countersign_vault/countersign_vault.wasm');
+const REGISTRY_WASM = here('../../contracts/target/near/countersign_registry/countersign_registry.wasm');
+const CLEARANCE_PORT = Number(process.env.CLEARANCE_PORT ?? 4010);
 useCurrentSandbox();
 if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
   console.error('Contracts are not built yet. Run: pnpm build:contracts');
@@ -46,7 +46,7 @@ await reporter.call(registry, 'report', {
 const guardian = KeyPair.fromRandom('ed25519');
 const vault = await root.devDeploy(VAULT_WASM, {
   initialBalance: N('5'), method: 'new',
-  args: { owner_id: owner.accountId, guardian: { account_id: 'preflight.test.near', public_key: guardian.getPublicKey().toString() } },
+  args: { owner_id: owner.accountId, guardian: { account_id: 'clearance.test.near', public_key: guardian.getPublicKey().toString() } },
 });
 const vaultCodeHash = base58Encode(createHash('sha256').update(readFileSync(VAULT_WASM)).digest());
 await owner.call(vault, 'set_mandate', {
@@ -64,8 +64,8 @@ await new Account(agent.accountId, provider, agentFull).addFunctionCallAccessKey
 const store = new MemoryStore();
 await store.rememberReceiver(vault.accountId, shop.accountId);
 const tokens = { agentToken: randomBytes(16).toString('hex'), operatorToken: randomBytes(16).toString('hex') };
-const server = await startPreflightServer({
-  ...tokens, port: PREFLIGHT_PORT,
+const server = await startClearanceServer({
+  ...tokens, port: CLEARANCE_PORT,
   guardianSecretKey: guardian.toString(),
   rpcUrl, nearblocksUrl: null, store,
   registryId: registry.accountId,
@@ -74,7 +74,7 @@ const server = await startPreflightServer({
 });
 
 // ---- seed activity so every page has something to show
-const guard = new Guard({ vaultId: vault.accountId, agentId: agent.accountId, agentKey: agentKey.toString() as KeyPairString, preflightUrl: server.url, agentToken: tokens.agentToken, rpcUrl });
+const guard = new Guard({ vaultId: vault.accountId, agentId: agent.accountId, agentKey: agentKey.toString() as KeyPairString, clearanceUrl: server.url, agentToken: tokens.agentToken, rpcUrl });
 const near = (to: string, amount: string) => ({ type: 'near_transfer' as const, receiver_id: to, amount: N(amount).toString() });
 console.log('seed: honest payment', (await guard.pay(near(shop.accountId, '2'))).status);
 console.log('seed: injected payment', (await guard.pay(near(attacker.accountId, '5'))).status);
@@ -97,15 +97,15 @@ const env = {
   NEXT_PUBLIC_AGENT_ID: agent.accountId,
   NEXT_PUBLIC_VAULT_CODE_HASH: vaultCodeHash,
   // server-only: never prefixed with NEXT_PUBLIC_
-  PREFLIGHT_URL: server.url,
-  PREFLIGHT_OPERATOR_TOKEN: tokens.operatorToken,
-  PREFLIGHT_AGENT_TOKEN: tokens.agentToken,
+  CLEARANCE_URL: server.url,
+  CLEARANCE_OPERATOR_TOKEN: tokens.operatorToken,
+  CLEARANCE_AGENT_TOKEN: tokens.agentToken,
   DEV_OWNER_KEY: (await owner.getKey())!.toString(),
   DEV_AGENT_FULL_KEY: agentFull,
   DEV_AGENT_KEY: agentKey.toString(),
 };
 writeFileSync(here('../../apps/web/.env.local'), `# written by pnpm dev:chain — local sandbox only, regenerated on every start\n${Object.entries(env).map(([k, v]) => `${k}=${v}`).join('\n')}\n`);
-console.log(`\nready. preflight ${server.url}, vault ${vault.accountId}\nwrote apps/web/.env.local — start the web app with: pnpm --filter @sentineli/web dev\nCtrl-C to stop.`);
+console.log(`\nready. clearance ${server.url}, vault ${vault.accountId}\nwrote apps/web/.env.local — start the web app with: pnpm --filter @countersign/web dev\nCtrl-C to stop.`);
 
 const stop = async () => {
   await server.close();

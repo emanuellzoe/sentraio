@@ -1,5 +1,5 @@
 {
-  "name": "@sentineli/core",
+  "name": "@countersign/core",
   "version": "0.1.0",
   "private": true,
   "description": "Reads a NEAR transaction (or a sandbox simulation) into a receipt tree, explained failures and net fund movements.",

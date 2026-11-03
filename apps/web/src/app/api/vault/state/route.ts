@@ -1,4 +1,4 @@
-import { formatAmount, viewAccount } from '@sentineli/core';
+import { formatAmount, viewAccount } from '@countersign/core';
 import { chain, isConfigured } from '@/lib/config';
 import { agentSimulatorEnabled, view } from '@/lib/server';
 

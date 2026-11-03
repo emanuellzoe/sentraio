@@ -1,4 +1,4 @@
-// FailLens from the terminal:
+// Tx X-Ray from the terminal:
 //   node packages/core/src/cli.ts <tx-hash> [signer-account] [testnet|mainnet] [--json]
 import { analyzeTx, fetchFtDecimals, fetchTx, formatReport } from './index.ts';
 import type { Network } from './index.ts';

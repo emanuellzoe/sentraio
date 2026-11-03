@@ -59,7 +59,7 @@
         "executor_id": "dev-22289-29632.test.near",
         "gas_burnt": 2175976655017,
         "logs": [
-          "EVENT_JSON:{\"standard\":\"sentineli\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"receiver_id\":\"shop.test.near\",\"amount\":\"1000000000000000000000000\",\"approved\":false}]}"
+          "EVENT_JSON:{\"standard\":\"countersign\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"receiver_id\":\"shop.test.near\",\"amount\":\"1000000000000000000000000\",\"approved\":false}]}"
         ],
         "metadata": {
           "contracts": [
