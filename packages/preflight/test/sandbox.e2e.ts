@@ -5,7 +5,7 @@ import { strict as assert } from 'node:assert';
 import { generateKeyPairSync } from 'node:crypto';
 import { test } from 'node:test';
 import nw from 'near-workspaces';
-import { approve, base58Encode, guardianKey } from '../src/index.ts';
+import { approve, base58Encode, guardianKey, useCurrentSandbox } from '../src/index.ts';
 import type { Decision } from '../src/index.ts';
 import { Simulator } from '../src/simulate.ts';
 
@@ -13,7 +13,7 @@ const WASM = new URL('../../../contracts/target/near/sentineli_vault/sentineli_v
 const N = (near: string) => BigInt(nw.parseNEAR(near));
 
 test('Preflight approval is accepted by the vault contract exactly once', { timeout: 300_000 }, async () => {
-  process.env.SANDBOX_ARTIFACT_URL ??= 'https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore/Darwin-arm64/2.14.0/near-sandbox.tar.gz';
+  useCurrentSandbox();
   const worker = await nw.Worker.init();
   try {
     const { privateKey } = generateKeyPairSync('ed25519');

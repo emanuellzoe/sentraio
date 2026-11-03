@@ -6,10 +6,10 @@
 // Act 4  compromised code bypasses the guard     -> vault refuses on-chain; key cannot move NEAR
 // Act 5  new vendor (warn)                       -> waits for a human, then pays
 import { createHash, randomBytes } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { analyzeTx, fetchTx, formatAmount } from '@sentineli/core';
 import { Guard } from '@sentineli/guard';
-import { base58Encode, MemoryStore, startPreflightServer } from '@sentineli/preflight';
+import { base58Encode, MemoryStore, startPreflightServer, useCurrentSandbox } from '@sentineli/preflight';
 import type { AgentAction, CheckResponse } from '@sentineli/preflight';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
@@ -19,7 +19,11 @@ import { llmLabel, runAgent } from './agent.ts';
 const here = (p: string) => new URL(p, import.meta.url).pathname;
 const VAULT_WASM = here('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm');
 const REGISTRY_WASM = here('../../contracts/target/near/sentineli_registry/sentineli_registry.wasm');
-process.env.SANDBOX_ARTIFACT_URL ??= 'https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore/Darwin-arm64/2.14.0/near-sandbox.tar.gz';
+useCurrentSandbox();
+if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
+  console.error('Contracts are not built yet. Run: pnpm build:contracts');
+  process.exit(1);
+}
 
 // ---------------------------------------------------------------- output
 const transcript: string[] = [];
