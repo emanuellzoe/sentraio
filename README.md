@@ -20,8 +20,8 @@ Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), 
 | Vault code hash (same as a local `pnpm build:contracts`) | `3Gqmv7uyUipxM3TrjceYsxfAMeLgxZw49zHxKQFDroRa` |
 
 Example transactions on testnet:
-- Compromised agent calls the vault without a Clearance approval → rejected on-chain, nothing moves: [`8SrPbuN5…`](https://testnet.nearblocks.io/txns/8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA)
-- New vendor, Clearance said `warn`, the owner approved, the vault paid 0.15 NEAR: [`9QujNYNo…`](https://testnet.nearblocks.io/txns/9QujNYNoJ5m5DGxgB3GS4D2oGTLHiFU8gb5jjvW1JCas)
+- Compromised agent calls the vault without a Clearance approval → rejected on-chain, nothing moves: [`HvabZkxq…`](https://testnet.nearblocks.io/txns/HvabZkxqiJBpJSvWCzr1VSkGPfC4vYq2PaybH4iiqc52)
+- New vendor, Clearance said `warn`, the owner approved, the vault paid 0.15 NEAR: [`BxQBFjrd…`](https://testnet.nearblocks.io/txns/BxQBFjrd2g3U35LeTPinxzg8sWc225JSma1QDC2HVGVx)
 
 ---
 
