@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SignalList } from '@/components/signals';
 import type { UiSignal } from '@/components/signals';
-import { XRayLink, postJson, usePoll } from '@/components/ui';
+import { Notice, postJson, Skeleton, usePoll, XRayLink } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
 import { useWallet, walletEnabled } from '@/components/wallet';
 
@@ -55,23 +55,16 @@ export function Operator() {
 
   if (error && !data) {
     return (
-      <div className="hatch px-frame p-4">
-        <p className="inline-block bg-paper px-2">Clearance service unreachable: {error}. Is <code>pnpm dev:chain</code> running?</p>
-      </div>
+      <Notice title="Clearance service unreachable" tone="red">{error}. Is {'pnpm dev:chain'} running?</Notice>
     );
   }
-  if (!data) return <div className="dither-25 px-frame h-40" />;
+  if (!data) return <Skeleton />;
   if (data.unavailable) {
     return (
-      <div className="dither-25 px-frame p-6">
-        <div className="space-y-2 bg-paper p-4">
-          <p className="font-pixel">The operator queue runs next to the Clearance service.</p>
-          <p className="text-sm">
-            This public demo holds no keys, so it has no Clearance service. Run it locally with <code className="bg-ink px-1 text-paper">pnpm dev:chain</code> and{' '}
-            <code className="bg-ink px-1 text-paper">pnpm web</code>, or watch it in the demo video and <code>pnpm demo:attack</code>.
-          </p>
-        </div>
-      </div>
+      <Notice title="The operator queue runs next to the Clearance service">
+        This public demo holds no keys, so it has no Clearance service. Run it locally with <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm dev:chain</code> and{' '}
+        <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm web</code>, or watch it in the demo video and <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm demo:attack</code>.
+      </Notice>
     );
   }
 
@@ -79,22 +72,22 @@ export function Operator() {
     <div className="space-y-8">
       <Panel title={`Waiting for a human (${data.pending.length})`}>
         {data.pending.length === 0 ? (
-          <p className="text-sm">Nothing to decide. Warns from Clearance show up here; the agent cannot answer them itself.</p>
+          <p className="text-sm text-label2">Nothing to decide. Warns from Clearance show up here; the agent cannot answer them itself.</p>
         ) : (
-          <ul className="space-y-6">
+          <ul className="space-y-4">
             {data.pending.map((c) => (
-              <li key={c.id} className="dither-25 border-2 border-ink p-3">
-                <div className="space-y-3 bg-paper p-3">
+              <li key={c.id} className="fade-in rounded-2xl border-[0.5px] border-orange/40 bg-orange/5 p-1">
+                <div className="space-y-3 p-4">
                   <p className="text-lg">
                     <b>{c.decision.request.agentId}</b> wants to send <b>{amount(c.decision.request.action)}</b> to <b>{c.decision.request.action.receiver_id}</b>
                   </p>
-                  <p className="text-sm">{c.decision.summary}</p>
+                  <p className="text-sm text-label2">{c.decision.summary}</p>
                   <SignalList signals={c.decision.signals} />
                   <div className="flex flex-wrap gap-3 pt-2">
-                    <button className="px-btn" disabled={!!busy} onClick={() => answer(c.id, 'confirm')}>{busy === c.id + 'confirm' ? 'Signing…' : 'Approve'}</button>
-                    <button className="px-btn" disabled={!!busy} onClick={() => answer(c.id, 'reject')}>{busy === c.id + 'reject' ? '…' : 'Reject'}</button>
+                    <button className="ios-btn" disabled={!!busy} onClick={() => answer(c.id, 'confirm')}>{busy === c.id + 'confirm' ? 'Signing…' : 'Approve'}</button>
+                    <button className="ios-btn ios-btn-danger-tinted" disabled={!!busy} onClick={() => answer(c.id, 'reject')}>{busy === c.id + 'reject' ? '…' : 'Reject'}</button>
                   </div>
-                  <p className="text-xs">Approving re-runs every check first; if anything turned into a block meanwhile, it is refused anyway.</p>
+                  <p className="text-xs text-label3">Your wallet signs a message (no transaction, no fee). Approving re-runs every check first; if anything turned into a block meanwhile, it is refused anyway.</p>
                 </div>
               </li>
             ))}
@@ -103,17 +96,17 @@ export function Operator() {
       </Panel>
 
       <Panel title="Decision log">
-        {data.checks.length === 0 ? <p className="text-sm">No decisions yet.</p> : (
+        {data.checks.length === 0 ? <p className="text-sm text-label2">No decisions yet.</p> : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-ink text-left font-pixel text-xs">
+              <tr className="border-b-[0.5px] border-sep text-left text-xs font-semibold uppercase text-label2">
                 <th className="py-1">Time</th><th>Result</th><th>Payment</th><th>Why</th>
               </tr>
             </thead>
             <tbody>
               {data.checks.map((c) => (
-                <tr key={c.id} className="border-b border-ink align-top last:border-0">
-                  <td className="py-2 pr-3 whitespace-nowrap text-xs">{c.at ? new Date(c.at).toLocaleTimeString() : ''}</td>
+                <tr key={c.id} className="border-b-[0.5px] border-sep align-top last:border-0">
+                  <td className="py-3 pr-3 whitespace-nowrap text-xs text-label2">{c.at ? new Date(c.at).toLocaleTimeString() : ''}</td>
                   <td className="py-2 pr-3"><Badge value={c.status === 'approved' ? 'allow' : c.status === 'needs_human' ? 'needs_human' : 'refused'} /><br /><span className="text-xs">{c.status}{c.by ? ` by ${c.by}` : ''}</span></td>
                   <td className="py-2 pr-3 break-all">{amount(c.decision.request.action)} → {c.decision.request.action.receiver_id}</td>
                   <td className="py-2">

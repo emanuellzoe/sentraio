@@ -8,18 +8,18 @@ export interface UiSignal {
   source: string;
 }
 
-/** Worst first, so the reason for the verdict is on top. */
+/** Worst first, so the reason for the verdict is on top. Rendered as an inset grouped list. */
 export function SignalList({ signals }: { signals: UiSignal[] }) {
   const rank = { block: 0, warn: 1, ok: 2 };
   return (
-    <ul className="space-y-2">
+    <ul className="overflow-hidden rounded-xl bg-fill/40 [&>li+li]:border-t-[0.5px] [&>li+li]:border-sep">
       {[...signals].sort((a, b) => rank[a.level] - rank[b.level]).map((s, i) => (
-        <li key={`${s.id}-${i}`} className="grid grid-cols-[4.5rem_1fr] items-start gap-3">
+        <li key={`${s.id}-${i}`} className="flex items-start gap-3 px-4 py-3">
           <Badge value={s.level} />
-          <div>
-            <p className="text-sm font-semibold">{s.title}</p>
-            {s.level !== 'ok' && <p className="text-sm">{s.detail}</p>}
-            <p className="text-xs opacity-70">source: {s.source}</p>
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{s.title}</p>
+            {s.level !== 'ok' && <p className="text-sm text-label2">{s.detail}</p>}
+            <p className="text-xs text-label3">{s.source}</p>
           </div>
         </li>
       ))}

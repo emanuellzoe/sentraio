@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SignalList } from '@/components/signals';
 import type { UiSignal } from '@/components/signals';
-import { postJson } from '@/components/ui';
+import { Notice, postJson } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
 
 interface Decision {
@@ -49,48 +49,48 @@ export function Playground() {
       <Panel title="Planned agent action">
         <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); check(); }}>
           <label className="grid gap-1">
-            <span className="font-pixel text-xs">Pay to</span>
-            <input className="px-input" value={form.receiver} onChange={(e) => setForm({ ...form, receiver: e.target.value })} required spellCheck={false} />
+            <span className="text-xs font-medium text-label2">Pay to</span>
+            <input className="ios-input" value={form.receiver} onChange={(e) => setForm({ ...form, receiver: e.target.value })} required spellCheck={false} />
           </label>
           <label className="grid gap-1">
-            <span className="font-pixel text-xs">Amount (NEAR)</span>
-            <input className="px-input" type="number" step="0.000001" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+            <span className="text-xs font-medium text-label2">Amount (NEAR)</span>
+            <input className="ios-input" type="number" step="0.000001" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
           </label>
           {!LOCAL && (
             <>
               <label className="grid gap-1">
-                <span className="font-pixel text-xs">Vault</span>
-                <input className="px-input" value={form.vaultId} onChange={(e) => setForm({ ...form, vaultId: e.target.value })} placeholder="vault.you.testnet" />
+                <span className="text-xs font-medium text-label2">Vault</span>
+                <input className="ios-input" value={form.vaultId} onChange={(e) => setForm({ ...form, vaultId: e.target.value })} placeholder="vault.you.testnet" />
               </label>
               <label className="grid gap-1">
-                <span className="font-pixel text-xs">Agent</span>
-                <input className="px-input" value={form.agentId} onChange={(e) => setForm({ ...form, agentId: e.target.value })} placeholder="agent.you.testnet" />
+                <span className="text-xs font-medium text-label2">Agent</span>
+                <input className="ios-input" value={form.agentId} onChange={(e) => setForm({ ...form, agentId: e.target.value })} placeholder="agent.you.testnet" />
               </label>
             </>
           )}
-          <button className="px-btn" disabled={state.loading}>{state.loading ? 'Checking…' : 'Check'}</button>
+          <button className="ios-btn" disabled={state.loading}>{state.loading ? 'Checking…' : 'Check'}</button>
           {PRESETS.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2 text-xs">
-              <span className="font-pixel">Try:</span>
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-sm">
+              <span className="text-label2">Try:</span>
               {PRESETS.map((p) => (
-                <button key={p.label} type="button" className="underline decoration-2 underline-offset-4 hover:bg-ink hover:text-paper" onClick={() => check({ ...form, receiver: p.receiver, amount: p.amount })}>
+                <button key={p.label} type="button" className="pill pill-blue hover:opacity-80" onClick={() => check({ ...form, receiver: p.receiver, amount: p.amount })}>
                   {p.label}
                 </button>
               ))}
             </div>
           )}
-          <p className="text-xs">Dry run: nothing is signed or sent.</p>
+          <p className="text-xs text-label3">Dry run: nothing is signed or sent.</p>
         </form>
       </Panel>
 
       <div>
-        {state.loading && <div className="dither-25 px-frame p-6"><p className="inline-block bg-paper px-2 font-pixel">Asking the chain<span className="cursor" /></p></div>}
-        {state.error && <div className="hatch px-frame p-4"><p className="inline-block bg-paper px-2">{state.error}</p></div>}
+        {state.loading && <div className="ios-card flex items-center gap-3 p-6 text-label2"><span className="spinner" /> Asking the chain…</div>}
+        {state.error && <Notice title="Check failed" tone="red">{state.error}</Notice>}
         {state.decision && (
           <Panel title="Verdict">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <Badge value={state.decision.verdict} large />
-              <p>{state.decision.summary}</p>
+              <p className="font-medium">{state.decision.summary}</p>
             </div>
             <SignalList signals={state.decision.signals} />
           </Panel>

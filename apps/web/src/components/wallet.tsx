@@ -95,13 +95,14 @@ export const useWallet = () => useContext(Ctx);
 
 export function WalletButton() {
   const { accountId, ready, signIn, signOut } = useWallet();
-  if (!walletEnabled) return <span className="badge dither-50 badge-dither text-[10px]"><span>LOCAL SANDBOX</span></span>;
-  if (!ready) return <span className="font-pixel text-xs">…</span>;
+  if (!walletEnabled) return <span className="pill pill-orange">Local sandbox</span>;
+  if (!ready) return <span className="spinner" aria-label="Loading wallet" />;
   return accountId ? (
-    <button type="button" className="px-btn py-1 text-xs" onClick={signOut} title="Disconnect">
-      {accountId.length > 22 ? `${accountId.slice(0, 20)}…` : accountId} ✕
+    <button type="button" className="ios-btn ios-btn-plain py-1.5 text-sm" onClick={signOut} title="Disconnect">
+      <span className="h-2 w-2 rounded-full bg-green" aria-hidden />
+      {accountId.length > 22 ? `${accountId.slice(0, 20)}…` : accountId}
     </button>
   ) : (
-    <button type="button" className="px-btn px-btn-solid py-1 text-xs" onClick={signIn}>Connect wallet</button>
+    <button type="button" className="ios-btn py-1.5 text-sm" onClick={signIn}>Connect wallet</button>
   );
 }

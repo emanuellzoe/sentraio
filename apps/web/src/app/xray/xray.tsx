@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { UiNode } from '../api/xray/route';
+import { Notice } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
 
 interface Report {
@@ -84,16 +85,16 @@ export function XRay() {
   return (
     <div className="space-y-8">
       <form
-        className="px-frame grid gap-3 bg-paper p-4 md:grid-cols-[1fr_auto_auto]"
+        className="ios-card grid gap-3 p-5 md:grid-cols-[1fr_auto_auto]"
         onSubmit={(e) => {
           e.preventDefault();
           submit();
         }}
       >
         <label className="grid gap-1 text-sm">
-          <span className="font-pixel text-xs">Transaction hash or explorer link</span>
+          <span className="text-xs font-medium text-label2">Transaction hash or explorer link</span>
           <input
-            className="px-input"
+            className="ios-input font-mono text-sm"
             value={form.tx}
             onChange={(e) => setForm({ ...form, tx: e.target.value })}
             onPaste={(e) => {
@@ -109,21 +110,21 @@ export function XRay() {
           />
         </label>
         <label className="grid gap-1 text-sm">
-          <span className="font-pixel text-xs">Network</span>
-          <select className="px-input" value={form.network} onChange={(e) => setForm({ ...form, network: e.target.value })}>
+          <span className="text-xs font-medium text-label2">Network</span>
+          <select className="ios-input" value={form.network} onChange={(e) => setForm({ ...form, network: e.target.value })}>
             <option value="testnet">testnet</option>
             <option value="mainnet">mainnet</option>
             {process.env.NEXT_PUBLIC_NETWORK === 'local' && <option value="local">local sandbox</option>}
           </select>
         </label>
-        <button className="px-btn self-end" disabled={state.loading}>
+        <button className="ios-btn self-end py-2.5" disabled={state.loading}>
           {state.loading ? 'Reading…' : 'Explain'}
         </button>
-        {inputError && <p className="text-sm md:col-span-3">{inputError}</p>}
-        <div className="flex flex-wrap items-center gap-2 text-xs md:col-span-3">
-          <span className="font-pixel">Try:</span>
+        {inputError && <p className="text-sm text-red md:col-span-3">{inputError}</p>}
+        <div className="flex flex-wrap items-center gap-2 text-sm md:col-span-3">
+          <span className="text-label2">Try:</span>
           {EXAMPLES.map((ex) => (
-            <button key={ex.tx} type="button" className="underline decoration-2 underline-offset-4 hover:bg-ink hover:text-paper" onClick={() => submit({ tx: ex.tx, network: ex.network })}>
+            <button key={ex.tx} type="button" className="pill pill-blue hover:opacity-80" onClick={() => submit({ tx: ex.tx, network: ex.network })}>
               {ex.label}
             </button>
           ))}
@@ -131,28 +132,26 @@ export function XRay() {
       </form>
 
       {state.loading && (
-        <div className="dither-25 px-frame p-6">
-          <p className="inline-block bg-paper px-2 font-pixel">Fetching receipts<span className="cursor" /></p>
+        <div className="ios-card flex items-center gap-3 p-6 text-label2">
+          <span className="spinner" /> Reading every receipt…
         </div>
       )}
       {state.error && (
-        <div className="hatch px-frame p-4">
-          <p className="inline-block bg-paper px-2">{state.error}</p>
-        </div>
+        <Notice title="Could not explain this transaction" tone="red">{state.error}</Notice>
       )}
 
       {r && (
-        <div className="space-y-6">
-          <div className="px-frame grid gap-3 bg-paper p-5 md:grid-cols-[auto_1fr] md:items-center">
+        <div className="fade-in space-y-6">
+          <div className="ios-card grid gap-3 p-6 md:grid-cols-[auto_1fr] md:items-center">
             <Badge value={r.verdict} large />
-            <p className="text-lg leading-snug">{r.headline}</p>
-            <p className="text-xs md:col-span-2">
+            <p className="text-lg leading-snug font-medium">{r.headline}</p>
+            <p className="text-xs text-label2 md:col-span-2">
               {r.network} · {r.signer} → {r.receiver} · {r.gasTgas} Tgas
               {r.network !== 'local' && (
                 <>
                   {' · '}
-                  <a className="underline" href={`https://${r.network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${r.hash}`} target="_blank" rel="noreferrer">
-                    explorer ↗
+                  <a className="ios-link" href={`https://${r.network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${r.hash}`} target="_blank" rel="noreferrer">
+                    Explorer ↗
                   </a>
                 </>
               )}
@@ -163,11 +162,14 @@ export function XRay() {
             <Panel title={`What went wrong (${r.failures.length})`}>
               <ul className="space-y-4">
                 {r.failures.map((f, i) => (
-                  <li key={i} className="border-l-4 border-ink pl-3">
-                    <p className="font-pixel text-sm">{f.title}</p>
-                    <p className="text-sm">{f.detail}</p>
-                    {f.hint && <p className="mt-1 text-sm"><span className="font-pixel text-xs">Fix → </span>{f.hint}</p>}
-                    <p className="mt-1 text-xs opacity-70">{f.code} at {f.executor}</p>
+                  <li key={i} className="flex gap-3">
+                    <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-red text-xs font-bold text-white">✕</span>
+                    <div className="min-w-0">
+                      <p className="font-semibold">{f.title}</p>
+                      <p className="text-sm text-label2 break-words">{f.detail}</p>
+                      {f.hint && <p className="mt-2 rounded-xl bg-fill px-3 py-2 text-sm"><span className="font-semibold text-blue">Fix · </span>{f.hint}</p>}
+                      <p className="mt-1 text-xs text-label3">{f.code} at {f.executor}</p>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -176,8 +178,9 @@ export function XRay() {
 
           <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
             <Panel title="Receipt tree">
-              <label className="mb-3 flex items-center gap-2 text-xs">
-                <input type="checkbox" checked={showGas} onChange={(e) => setShowGas(e.target.checked)} /> show gas refunds
+              <label className="mb-4 flex items-center justify-between gap-2 text-sm text-label2">
+                Show gas refunds
+                <input type="checkbox" className="ios-switch" checked={showGas} onChange={(e) => setShowGas(e.target.checked)} />
               </label>
               <Tree node={r.tree} showGas={showGas} />
             </Panel>
@@ -185,15 +188,15 @@ export function XRay() {
             <div className="space-y-6">
               <Panel title="Where the funds are now">
                 {r.net.length === 0 ? (
-                  <p className="text-sm">No funds changed hands.</p>
+                  <p className="text-sm text-label2">No funds changed hands.</p>
                 ) : (
                   <table className="w-full text-sm">
                     <tbody>
                       {r.net.flatMap((n) => n.changes.map((c) => (
-                        <tr key={n.account + c.asset} className="border-b border-ink last:border-0">
-                          <td className="py-1 pr-2">{wrapAtDots(n.account)}</td>
-                          <td className="py-1 text-right font-semibold whitespace-nowrap">{c.display}</td>
-                          <td className="py-1 pl-2 text-xs">{wrapAtDots(c.asset)}</td>
+                        <tr key={n.account + c.asset} className="border-b-[0.5px] border-sep last:border-0">
+                          <td className="py-2 pr-2">{wrapAtDots(n.account)}</td>
+                          <td className={`py-2 text-right font-semibold whitespace-nowrap ${c.display.startsWith('-') ? 'text-red' : 'text-green'}`}>{c.display}</td>
+                          <td className="py-2 pl-2 text-xs text-label2">{wrapAtDots(c.asset)}</td>
                         </tr>
                       )))}
                     </tbody>
@@ -202,14 +205,14 @@ export function XRay() {
               </Panel>
               <Panel title="Movements">
                 {r.movements.length === 0 ? (
-                  <p className="text-sm">None. Logs from failed receipts are ignored on purpose: their state was reverted.</p>
+                  <p className="text-sm text-label2">None. Logs from failed receipts are ignored on purpose: their state was reverted.</p>
                 ) : (
                   <ol className="space-y-2 text-sm">
                     {r.movements.map((m, i) => (
                       <li key={i}>
-                        <span className="font-pixel text-xs">{m.kind}</span> {m.display}
+                        <span className="pill pill-gray mr-2 capitalize">{m.kind}</span> <span className="font-medium">{m.display}</span>
                         <br />
-                        <span className="text-xs break-all">{m.from ?? '(minted)'} → {m.to ?? '(burned)'}</span>
+                        <span className="text-xs text-label2 break-all">{m.from ?? '(minted)'} → {m.to ?? '(burned)'}</span>
                       </li>
                     ))}
                   </ol>
@@ -226,17 +229,15 @@ export function XRay() {
 function Tree({ node, showGas, depth = 0 }: { node: UiNode; showGas: boolean; depth?: number }) {
   if (node.role === 'gas_refund' && !showGas) return null;
   return (
-    <div className={depth ? 'ml-4 border-l-2 border-ink pl-3' : ''}>
-      <div className={`my-1 flex flex-wrap items-baseline gap-2 py-1 ${node.ok ? '' : 'hatch px-1'}`}>
-        <span className={node.ok ? '' : 'bg-paper px-1'}>
-          <Badge value={node.ok ? 'ok' : 'failed'} />
+    <div className={depth ? 'ml-4 border-l-2 border-sep pl-3' : ''}>
+      <div className={`my-1 flex flex-wrap items-center gap-2 rounded-xl px-2 py-1.5 ${node.ok ? '' : 'bg-red/10'}`}>
+        <Badge value={node.ok ? 'ok' : 'failed'} />
+        <span className="text-sm break-all">
+          <span className="font-semibold">{node.receiver}</span> <span className="font-mono text-xs text-label2">{node.label}</span>
         </span>
-        <span className={`text-sm break-all ${node.ok ? '' : 'bg-paper px-1'}`}>
-          <b>{node.receiver}</b> {node.label}
-        </span>
-        <span className={`text-xs ${node.ok ? '' : 'bg-paper px-1'}`}>{node.gasTgas} Tgas</span>
+        <span className="text-xs text-label3">{node.gasTgas} Tgas</span>
       </div>
-      {node.error && <p className="mb-1 ml-1 text-xs">↳ {node.error.detail}</p>}
+      {node.error && <p className="mb-1 ml-3 text-xs text-red">{node.error.detail}</p>}
       {node.children.map((c) => (
         <Tree key={c.id} node={c} showGas={showGas} depth={depth + 1} />
       ))}
