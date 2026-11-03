@@ -103,7 +103,7 @@ export function XRay() {
                 submit(parsed); // pasting is enough: no extra click
               }
             }}
-            placeholder="8SrPbuN5…  or  https://testnet.nearblocks.io/txns/…"
+            placeholder="HvabZkxq…  or  https://testnet.nearblocks.io/txns/…"
             required
             spellCheck={false}
           />
