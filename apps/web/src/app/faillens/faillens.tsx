@@ -29,6 +29,9 @@ const EXAMPLES = [
 
 const HASH = /[1-9A-HJ-NP-Za-km-z]{43,44}/g;
 
+/** Lets long account ids wrap only after a dot (zero-width space), never mid-name. */
+const wrapAtDots = (id: string) => id.replaceAll('.', '.\u200b');
+
 /** Accepts a bare hash or an explorer link; the link's host also tells the network. */
 export function parseTxInput(input: string, fallback: string): { tx: string; network: string } | undefined {
   const tx = input.trim().match(HASH)?.at(-1);
@@ -188,9 +191,9 @@ export function FailLens() {
                     <tbody>
                       {r.net.flatMap((n) => n.changes.map((c) => (
                         <tr key={n.account + c.asset} className="border-b border-ink last:border-0">
-                          <td className="py-1 pr-2 break-all">{n.account}</td>
+                          <td className="py-1 pr-2">{wrapAtDots(n.account)}</td>
                           <td className="py-1 text-right font-semibold whitespace-nowrap">{c.display}</td>
-                          <td className="py-1 pl-2 text-xs break-all">{c.asset}</td>
+                          <td className="py-1 pl-2 text-xs">{wrapAtDots(c.asset)}</td>
                         </tr>
                       )))}
                     </tbody>
