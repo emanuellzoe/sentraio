@@ -224,7 +224,6 @@ spikes/sandbox         early experiments and wasm end-to-end scripts
 - Written with AI assistance (Claude Code).
 - Libraries: near-sdk 5.29.1 (pinned: 5.30 links host functions that mainnet protocol 86 does not have yet), near-workspaces 5 (sandbox, with neard 2.14.0 fetched on first run because the bundled 2.6.2 cannot load current wasm), near-api-js 7.4, Next.js 16, React 19, Tailwind CSS 4, ed25519-dalek (tests only). Core and Preflight have no runtime dependencies besides these.
 - External data: FastNEAR RPC (regular and archival), NearBlocks API.
-- Other project by the same author in this hackathon: **Kutipan** (independent; link added when public).
 
 ## License
 
