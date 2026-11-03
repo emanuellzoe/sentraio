@@ -200,7 +200,7 @@ This needs the guardian and agent function-call keys in `~/.sentineli/testnet.js
 
 - Deployed on testnet (addresses at the top). The local sandbox reproduces everything without keys.
 - Owner actions on testnet go through the browser wallet; on the local sandbox they are signed server-side with a dev key from `.env.local` (never committed).
-- The operator page is protected only by being served to the operator: the web app holds the operator token server-side. Before hosting it publicly, approvals must require the owner's wallet signature (NEP-413). Not done yet.
+- On testnet, answering a `warn` on `/operator` requires a fresh NEP-413 signed message from a full-access key of the vault owner (checked over RPC; single-use nonce, 5-minute window). The local sandbox skips this because no wallet can connect to it.
 - NEAR Intents / 1Click integration (DeFi track) is not implemented.
 
 ## Repository layout

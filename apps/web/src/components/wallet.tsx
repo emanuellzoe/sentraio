@@ -14,6 +14,8 @@ interface WalletCtx {
   ready: boolean;
   signIn(): Promise<void>;
   signOut(): Promise<void>;
+  /** NEP-413 sign message; nonce is base64 of 32 bytes. */
+  signMessage(message: string, recipient: string, nonceB64: string): Promise<{ accountId: string; publicKey: string; signature: string }>;
   /** Sends one function call from the signed-in account; returns the transaction hash. */
   call(receiverId: string, methodName: string, args: object, depositYocto?: string, gasTgas?: number): Promise<string>;
 }
@@ -23,6 +25,9 @@ const Ctx = createContext<WalletCtx>({
   signIn: async () => {},
   signOut: async () => {},
   call: async () => {
+    throw new Error('wallet not available');
+  },
+  signMessage: async () => {
     throw new Error('wallet not available');
   },
 });
@@ -75,7 +80,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     return (outcome as unknown as { transaction: { hash: string } }).transaction.hash;
   }, []);
 
-  return <Ctx.Provider value={{ accountId, ready, signIn, signOut, call }}>{children}</Ctx.Provider>;
+  const signMessage = useCallback<WalletCtx['signMessage']>(async (message, recipient, nonceB64) => {
+    const wallet = await connector.current!.wallet();
+    const nonce = Uint8Array.from(atob(nonceB64), (ch) => ch.charCodeAt(0));
+    const signed = await wallet.signMessage({ message, recipient, nonce });
+    if (!signed) throw new Error('wallet did not sign');
+    return { accountId: signed.accountId, publicKey: signed.publicKey, signature: signed.signature };
+  }, []);
+
+  return <Ctx.Provider value={{ accountId, ready, signIn, signOut, call, signMessage }}>{children}</Ctx.Provider>;
 }
 
 export const useWallet = () => useContext(Ctx);
