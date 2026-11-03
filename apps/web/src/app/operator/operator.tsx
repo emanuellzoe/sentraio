@@ -5,7 +5,7 @@ import { SignalList } from '@/components/signals';
 import type { UiSignal } from '@/components/signals';
 import { FailLensLink, postJson, usePoll } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
-import { useWallet } from '@/components/wallet';
+import { useWallet, walletEnabled } from '@/components/wallet';
 
 interface Check {
   id: string;
@@ -28,15 +28,23 @@ const amount = (a: Check['decision']['request']['action']) =>
   a.type === 'near_transfer' ? `${Number(BigInt(a.amount) / 10n ** 18n) / 1e6} NEAR` : `${a.amount} ${a.token}`;
 
 export function Operator() {
-  const { data, error, reload } = usePoll<{ pending: Check[]; checks: Check[] }>('/api/operator', 2000);
+  const { data, error, reload } = usePoll<{ pending: Check[]; checks: Check[]; unavailable?: boolean }>('/api/operator', 2000);
   const [busy, setBusy] = useState<string>();
-  const { accountId } = useWallet();
+  const wallet = useWallet();
 
   const answer = async (id: string, decision: 'confirm' | 'reject') => {
     const reason = decision === 'reject' ? prompt('Why reject? (recorded)') ?? undefined : undefined;
     setBusy(id + decision);
     try {
-      await postJson('/api/operator', { id, decision, reason, by: accountId });
+      let proof;
+      if (walletEnabled) {
+        // the owner's wallet signs exactly the server's challenge (NEP-413); no transaction, no fee
+        if (!wallet.accountId) throw new Error('Connect the vault owner wallet first.');
+        const ch = await (await fetch(`/api/operator/challenge?id=${id}&decision=${decision}`)).json();
+        const signed = await wallet.signMessage(ch.message, ch.recipient, ch.nonce);
+        proof = { signed, nonce: ch.nonce, at: ch.at };
+      }
+      await postJson('/api/operator', { id, decision, reason, proof });
       await reload();
     } catch (e) {
       alert((e as Error).message);
@@ -53,6 +61,19 @@ export function Operator() {
     );
   }
   if (!data) return <div className="dither-25 px-frame h-40" />;
+  if (data.unavailable) {
+    return (
+      <div className="dither-25 px-frame p-6">
+        <div className="space-y-2 bg-paper p-4">
+          <p className="font-pixel">The operator queue runs next to the Preflight service.</p>
+          <p className="text-sm">
+            This public demo holds no keys, so it has no Preflight service. Run it locally with <code className="bg-ink px-1 text-paper">pnpm dev:chain</code> and{' '}
+            <code className="bg-ink px-1 text-paper">pnpm web</code>, or watch it in the demo video and <code>pnpm demo:attack</code>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

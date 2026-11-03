@@ -7,3 +7,5 @@ export { JsonFileStore, MemoryStore } from './store.ts';
 export type * from './types.ts';
 export { startPreflightServer } from './server.ts';
 export type { CheckResponse, CheckStatus, PreflightServer, ServerOptions } from './server.ts';
+export { isFullAccessKey, nep413Hash, OPERATOR_RECIPIENT, operatorMessage, verifyNep413Signature, verifyOperatorProof } from './nep413.ts';
+export type { OperatorProof, SignedMessage } from './nep413.ts';
