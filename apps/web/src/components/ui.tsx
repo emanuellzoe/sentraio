@@ -15,12 +15,19 @@ export function PixelBar({ value, max, segments = 12 }: { value: number; max: nu
   );
 }
 
-export function FailLensLink({ tx, signer, network = 'local' }: { tx?: string; signer?: string; network?: string }) {
-  if (!tx || !signer) return null;
+export function FailLensLink({ tx, network = 'local' }: { tx?: string; signer?: string; network?: string }) {
+  if (!tx) return null;
   return (
-    <Link className="underline decoration-2 underline-offset-2" href={`/faillens?${new URLSearchParams({ tx, signer, network })}`}>
-      FailLens ↗
-    </Link>
+    <span className="inline-flex gap-3">
+      <Link className="underline decoration-2 underline-offset-2" href={`/faillens?${new URLSearchParams({ tx, network })}`}>
+        FailLens ↗
+      </Link>
+      {network !== 'local' && (
+        <a className="underline decoration-2 underline-offset-2" href={`https://${network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${tx}`} target="_blank" rel="noreferrer">
+          explorer ↗
+        </a>
+      )}
+    </span>
   );
 }
 

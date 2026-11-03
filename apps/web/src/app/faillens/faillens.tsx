@@ -21,25 +21,41 @@ interface Report {
 }
 
 const EXAMPLES = [
-  { label: 'Ref swap NEAR→USDT', tx: 'AjSDQJSUrrkBmuAYVjMkgm6J7ZwJuqvMNQXua1vHe4Qo', signer: 'tx-bench.testnet', network: 'testnet' },
-  { label: 'Failed: receiver not registered', tx: 'AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM', signer: 'pdc-trader-d77fbf.testnet', network: 'testnet' },
-  { label: 'Failed: zero amount', tx: '5ToKYFoveoWPjWAKSqDgFmH2YTFgH2X2JLQbmJcTnF8P', signer: 'zavodil.testnet', network: 'testnet' },
+  { label: 'Vault blocks a bypass (Sentineli)', tx: '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA', network: 'testnet' },
+  { label: 'Ref swap NEAR→USDT', tx: 'AjSDQJSUrrkBmuAYVjMkgm6J7ZwJuqvMNQXua1vHe4Qo', network: 'testnet' },
+  { label: 'Failed: receiver not registered', tx: 'AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM', network: 'testnet' },
+  { label: 'Failed: zero amount', tx: '5ToKYFoveoWPjWAKSqDgFmH2YTFgH2X2JLQbmJcTnF8P', network: 'testnet' },
 ];
+
+const HASH = /[1-9A-HJ-NP-Za-km-z]{43,44}/g;
+
+/** Accepts a bare hash or an explorer link; the link's host also tells the network. */
+export function parseTxInput(input: string, fallback: string): { tx: string; network: string } | undefined {
+  const tx = input.trim().match(HASH)?.at(-1);
+  if (!tx) return undefined;
+  let network = fallback;
+  try {
+    const host = new URL(input.trim()).host;
+    network = host.includes('testnet') ? 'testnet' : 'mainnet';
+  } catch {
+    /* not a URL: keep the selected network */
+  }
+  return { tx, network };
+}
 
 export function FailLens() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [form, setForm] = useState({ tx: params.get('tx') ?? '', signer: params.get('signer') ?? '', network: params.get('network') ?? 'testnet' });
+  const [form, setForm] = useState({ tx: params.get('tx') ?? '', network: params.get('network') ?? 'testnet' });
+  const [inputError, setInputError] = useState<string>();
   const [state, setState] = useState<{ loading: boolean; error?: string; report?: Report }>({ loading: false });
   const [showGas, setShowGas] = useState(false);
 
   // the URL is the source of truth, so a report can be shared as a link
   const query = params.toString();
   useEffect(() => {
-    const tx = params.get('tx');
-    const signer = params.get('signer');
-    if (!tx || !signer) return;
+    if (!params.get('tx')) return;
     let cancelled = false;
     setState({ loading: true });
     fetch(`/api/faillens?${query}`)
@@ -54,27 +70,40 @@ export function FailLens() {
   }, [query, params]);
 
   const submit = (f = form) => {
-    setForm(f);
-    router.push(`${pathname}?${new URLSearchParams(f).toString()}`);
+    const parsed = parseTxInput(f.tx, f.network);
+    if (!parsed) return setInputError('Paste a transaction hash or an explorer link (nearblocks, explorer.near.org…).');
+    setInputError(undefined);
+    setForm(parsed);
+    router.push(`${pathname}?${new URLSearchParams(parsed).toString()}`);
   };
 
   const r = state.report;
   return (
     <div className="space-y-8">
       <form
-        className="px-frame grid gap-3 bg-paper p-4 md:grid-cols-[2fr_1.2fr_auto_auto]"
+        className="px-frame grid gap-3 bg-paper p-4 md:grid-cols-[1fr_auto_auto]"
         onSubmit={(e) => {
           e.preventDefault();
           submit();
         }}
       >
         <label className="grid gap-1 text-sm">
-          <span className="font-pixel text-xs">Transaction hash</span>
-          <input className="px-input" value={form.tx} onChange={(e) => setForm({ ...form, tx: e.target.value })} placeholder="AjSDQJSU…" required spellCheck={false} />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="font-pixel text-xs">Signer account</span>
-          <input className="px-input" value={form.signer} onChange={(e) => setForm({ ...form, signer: e.target.value })} placeholder="alice.testnet" required spellCheck={false} />
+          <span className="font-pixel text-xs">Transaction hash or explorer link</span>
+          <input
+            className="px-input"
+            value={form.tx}
+            onChange={(e) => setForm({ ...form, tx: e.target.value })}
+            onPaste={(e) => {
+              const parsed = parseTxInput(e.clipboardData.getData('text'), form.network);
+              if (parsed) {
+                e.preventDefault();
+                submit(parsed); // pasting is enough: no extra click
+              }
+            }}
+            placeholder="8SrPbuN5…  or  https://testnet.nearblocks.io/txns/…"
+            required
+            spellCheck={false}
+          />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="font-pixel text-xs">Network</span>
@@ -87,10 +116,11 @@ export function FailLens() {
         <button className="px-btn self-end" disabled={state.loading}>
           {state.loading ? 'Reading…' : 'Explain'}
         </button>
-        <div className="flex flex-wrap items-center gap-2 text-xs md:col-span-4">
+        {inputError && <p className="text-sm md:col-span-3">{inputError}</p>}
+        <div className="flex flex-wrap items-center gap-2 text-xs md:col-span-3">
           <span className="font-pixel">Try:</span>
           {EXAMPLES.map((ex) => (
-            <button key={ex.tx} type="button" className="underline decoration-2 underline-offset-4 hover:bg-ink hover:text-paper" onClick={() => submit({ tx: ex.tx, signer: ex.signer, network: ex.network })}>
+            <button key={ex.tx} type="button" className="underline decoration-2 underline-offset-4 hover:bg-ink hover:text-paper" onClick={() => submit({ tx: ex.tx, network: ex.network })}>
               {ex.label}
             </button>
           ))}

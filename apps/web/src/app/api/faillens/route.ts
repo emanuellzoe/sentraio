@@ -3,7 +3,6 @@ import type { Network, ReceiptNode } from '@sentineli/core';
 import { chain, isLocalMode } from '@/lib/config';
 
 const HASH = /^[1-9A-HJ-NP-Za-km-z]{43,44}$/;
-const ACCOUNT = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 
 export interface UiNode {
   id: string;
@@ -19,15 +18,13 @@ export interface UiNode {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const hash = url.searchParams.get('tx')?.trim() ?? '';
-  const signer = url.searchParams.get('signer')?.trim().toLowerCase() ?? '';
   const requested = url.searchParams.get('network');
   const local = requested === 'local' && isLocalMode();
   const network = (requested === 'mainnet' ? 'mainnet' : 'testnet') as Network;
   if (!HASH.test(hash)) return Response.json({ error: 'That does not look like a NEAR transaction hash.' }, { status: 400 });
-  if (!ACCOUNT.test(signer) || signer.length < 2 || signer.length > 64) return Response.json({ error: 'Signer must be a NEAR account id.' }, { status: 400 });
 
   try {
-    const tx = await fetchTx({ hash, sender: signer, network, rpcUrl: local ? chain.rpcUrl : undefined });
+    const tx = await fetchTx({ hash, network, rpcUrl: local ? chain.rpcUrl : undefined });
     const tokens = analyzeTx(tx).movements.map((m) => m.asset).filter((a) => a !== 'NEAR');
     const decimals = local ? {} : await fetchFtDecimals(tokens, { network });
     const r = analyzeTx(tx, { decimals });
@@ -67,7 +64,7 @@ export async function GET(request: Request) {
   } catch (e) {
     const code = e instanceof RpcError ? e.code : 'ERROR';
     const message = code === 'UNKNOWN_TRANSACTION'
-      ? 'Transaction not found. Check the hash, the signer account and the network.'
+      ? 'Transaction not found. Check the hash and the network (testnet / mainnet).'
       : (e as Error).message;
     return Response.json({ error: message, code }, { status: code === 'UNKNOWN_TRANSACTION' ? 404 : 502 });
   }

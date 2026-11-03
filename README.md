@@ -8,6 +8,19 @@ Sentineli stops an AI agent on NEAR from paying the wrong account, even when the
 
 Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), **Open Innovation**.
 
+**Live on NEAR testnet**
+
+| Contract / account | Address |
+|---|---|
+| Vault (owner `0xnagaa.testnet`) | [`vault.sentineli.testnet`](https://testnet.nearblocks.io/address/vault.sentineli.testnet) |
+| Registry (blocklist) | [`registry.sentineli.testnet`](https://testnet.nearblocks.io/address/registry.sentineli.testnet) |
+| Agent (function-call key: `vault.execute` only) | [`agent.sentineli.testnet`](https://testnet.nearblocks.io/address/agent.sentineli.testnet) |
+| Vault code hash (same as a local `pnpm build:contracts`) | `Fm2aCpMQhiRy1udKZuXgJLwTh1VLsNBnfsPx7gmRRkCM` |
+
+Example transactions on testnet:
+- Compromised agent calls the vault without a Preflight approval → rejected on-chain, nothing moves: [`8SrPbuN5…`](https://testnet.nearblocks.io/txns/8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA)
+- New vendor, Preflight said `warn`, the owner approved, the vault paid 0.15 NEAR: [`9QujNYNo…`](https://testnet.nearblocks.io/txns/9QujNYNoJ5m5DGxgB3GS4D2oGTLHiFU8gb5jjvW1JCas)
+
 ---
 
 ## The problem
@@ -70,8 +83,10 @@ Restart the web app whenever you restart `dev:chain` (new sandbox, new account i
 
 ### 4. FailLens on real testnet transactions (no setup)
 
+Only the hash is needed (an explorer link also works in the web app; pasting it runs the analysis).
+
 ```bash
-node packages/core/src/cli.ts AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM pdc-trader-d77fbf.testnet testnet
+node packages/core/src/cli.ts AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM testnet
 ```
 
 Expected:
@@ -172,10 +187,20 @@ Builds the receipt tree from `EXPERIMENTAL_tx_status`, explains failures from a 
 - A leaked guardian key lets an attacker sign approvals, but only inside the owner's mandate (limits and receiver rules are enforced on-chain). The owner rotates the guardian or panics.
 - NearBlocks' testnet indexer can lag behind the chain, so "no indexer record" is a warn, not a block; account existence is always checked over RPC.
 
+### 6. The dashboard against testnet
+
+```bash
+pnpm testnet:preflight   # terminal 1: Preflight service for vault.sentineli.testnet; writes apps/web/.env.local
+pnpm --filter @sentineli/web build && pnpm --filter @sentineli/web start   # terminal 2
+```
+
+This needs the guardian and agent function-call keys in `~/.sentineli/testnet.json`, which only the deployer has; judges can read everything above on the explorer instead. Owner actions (set mandate, deposit, freeze, panic) are signed in the browser wallet (`@hot-labs/near-connect`: Meteor, HOT, MyNearWallet, …) by the vault owner. The *Play the agent* buttons use 10× smaller amounts on testnet.
+
 ## Status
 
-- Contracts, Preflight, guard, attack demo, dashboard and FailLens run locally (instructions above).
-- Testnet deployment and browser-wallet login for the dashboard: not done yet. On the local sandbox, owner actions are signed server-side with a dev key from `.env.local` (never committed); on testnet they will go through the wallet (`@hot-labs/near-connect`).
+- Deployed on testnet (addresses at the top). The local sandbox reproduces everything without keys.
+- Owner actions on testnet go through the browser wallet; on the local sandbox they are signed server-side with a dev key from `.env.local` (never committed).
+- The operator page is protected only by being served to the operator: the web app holds the operator token server-side. Before hosting it publicly, approvals must require the owner's wallet signature (NEP-413). Not done yet.
 - NEAR Intents / 1Click integration (DeFi track) is not implemented.
 
 ## Repository layout

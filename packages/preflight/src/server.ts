@@ -3,6 +3,7 @@
 //   GET  /pending/:id                                       (agent token: poll)
 //   GET  /pending                                           (operator token)
 //   GET  /checks                                            (operator token: decision log, newest first)
+//   POST /checks/:id/executed  {txHash}                     (agent token: report the transaction it sent)
 //   POST /pending/:id/confirm  {by}                         (operator token)
 //   POST /pending/:id/reject   {by, reason?}                (operator token)
 // The agent token can only ask; confirming a warn needs the operator token, so a
@@ -26,6 +27,8 @@ export interface CheckResponse {
   approval?: Approval;
   by?: string;
   reason?: string;
+  /** Set by the agent after it sent the approved transaction. */
+  txHash?: string;
 }
 
 export interface ServerOptions extends PreflightConfig {
@@ -81,6 +84,15 @@ export async function startPreflightServer(opts: ServerOptions): Promise<Preflig
       return [200, strip(publish({ ...base, status: 'approved', approval: await sign(decision) }))];
     }
 
+    if (req.method === 'POST' && path[0] === 'checks' && path[2] === 'executed') {
+      if (role !== 'agent') return [401, { error: 'agent token required' }];
+      const c = checks.get(path[1] ?? '');
+      if (!c) return [404, { error: 'unknown check' }];
+      if (c.status !== 'approved') return [409, { error: `check is ${c.status}` }];
+      const txHash = String(body?.txHash ?? '');
+      if (!/^[1-9A-HJ-NP-Za-km-z]{43,44}$/.test(txHash)) return [400, { error: 'txHash must be a transaction hash' }];
+      return [200, strip(publish({ ...c, txHash }))];
+    }
     if (req.method === 'GET' && path[0] === 'checks' && path.length === 1) {
       if (role !== 'operator') return [401, { error: 'operator token required' }];
       return [200, [...checks.values()].sort((a, b) => b.createdAt - a.createdAt).slice(0, 200).map((c) => ({ ...strip(c), at: new Date(c.createdAt).toISOString() }))];

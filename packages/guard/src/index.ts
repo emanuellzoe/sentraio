@@ -68,6 +68,8 @@ export class Guard {
       throwOnFailure: false,
     });
     const txHash = (sent as unknown as { transaction: { hash: string } }).transaction.hash;
+    // let the operator's decision log link straight to the transaction
+    await this.post(`/checks/${check.id}/executed`, { txHash }).catch(() => {});
     const report = analyzeTx(await fetchTx({ hash: txHash, sender: this.opts.agentId, rpcUrl: this.opts.rpcUrl }));
     const status: GuardStatus = report.verdict === 'success' ? 'executed' : report.verdict === 'rejected' ? 'vault_rejected' : 'failed';
     emit({ stage: 'done', detail: report.headline });

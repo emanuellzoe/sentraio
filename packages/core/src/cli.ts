@@ -1,11 +1,13 @@
 // FailLens from the terminal:
-//   node packages/core/src/cli.ts <tx-hash> <signer-account> [testnet|mainnet] [--json]
+//   node packages/core/src/cli.ts <tx-hash> [signer-account] [testnet|mainnet] [--json]
 import { analyzeTx, fetchFtDecimals, fetchTx, formatReport } from './index.ts';
 import type { Network } from './index.ts';
 
-const [hash, sender, network = 'testnet'] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-if (!hash || !sender) {
-  console.error('usage: cli.ts <tx-hash> <signer-account> [testnet|mainnet] [--json]');
+const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const network = args.find((a) => a === 'testnet' || a === 'mainnet') ?? 'testnet';
+const [hash, sender] = args.filter((a) => a !== network);
+if (!hash) {
+  console.error('usage: cli.ts <tx-hash> [signer-account] [testnet|mainnet] [--json]');
   process.exit(2);
 }
 const net = network as Network;

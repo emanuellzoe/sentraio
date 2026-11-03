@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         nearblocksUrl: isLocalMode() ? null : undefined,
         registryId: chain.registryId || undefined,
         expectedVaultCodeHashes: chain.vaultCodeHash ? [chain.vaultCodeHash] : undefined,
-        knownAccounts: isLocalMode() ? ['shop-payments.test.near'] : undefined,
+        knownAccounts: (process.env.PREFLIGHT_KNOWN_ACCOUNTS ?? (isLocalMode() ? 'shop-payments.test.near' : '')).split(',').filter(Boolean),
       },
     );
     return Response.json(decision);
