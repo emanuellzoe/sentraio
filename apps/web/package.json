@@ -9,13 +9,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hot-labs/near-connect": "^0.12.0",
+    "@sentineli/core": "workspace:*",
+    "@sentineli/guard": "workspace:*",
+    "@sentineli/preflight": "workspace:*",
+    "near-api-js": "7.4.0",
     "next": "16.4.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "@sentineli/core": "workspace:*",
-    "@sentineli/preflight": "workspace:*",
-    "@sentineli/guard": "workspace:*",
-    "near-api-js": "7.4.0"
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

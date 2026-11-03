@@ -10,8 +10,8 @@ export const RPC_URLS: Record<Network, { regular: string; archival: string }> = 
 
 export interface FetchTxParams {
   hash: string;
-  /** Signer of the transaction; RPC uses it to find the right shard. */
-  sender: string;
+  /** Signer of the transaction. Optional: current nodes find the transaction by hash alone. */
+  sender?: string;
   network?: Network;
   /** Use exactly this endpoint (no archival fallback). */
   rpcUrl?: string;
@@ -33,7 +33,7 @@ export class RpcError extends Error {
 const RETRY_ON_ARCHIVAL = new Set(['UNKNOWN_TRANSACTION', 'TIMEOUT_ERROR', 'GARBAGE_COLLECTED_BLOCK', 'HTTP_TIMEOUT']);
 
 /** Full transaction with receipts (actions, predecessors) via EXPERIMENTAL_tx_status. */
-export async function fetchTx({ hash, sender, network = 'testnet', rpcUrl, timeoutMs = 15_000, fetchImpl = fetch }: FetchTxParams): Promise<RawTx> {
+export async function fetchTx({ hash, sender = 'near', network = 'testnet', rpcUrl, timeoutMs = 15_000, fetchImpl = fetch }: FetchTxParams): Promise<RawTx> {
   const call = (url: string, ms: number) => rpc<RawTx>(url, 'EXPERIMENTAL_tx_status', { tx_hash: hash, sender_account_id: sender, wait_until: 'FINAL' }, ms, fetchImpl);
   if (rpcUrl) return call(rpcUrl, timeoutMs);
   try {

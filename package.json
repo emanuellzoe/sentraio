@@ -10,7 +10,8 @@
     "typecheck": "pnpm -r typecheck",
     "demo:attack": "node demo/attack/run.ts",
     "dev:chain": "node demo/attack/dev-chain.ts",
-    "web": "pnpm --filter @sentineli/web dev"
+    "web": "pnpm --filter @sentineli/web dev",
+    "testnet:preflight": "node demo/attack/testnet.ts"
   },
   "engines": {
     "node": ">=24"

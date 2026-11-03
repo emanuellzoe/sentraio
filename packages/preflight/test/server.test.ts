@@ -60,6 +60,11 @@ test('warn waits for the operator; the agent token cannot confirm it', async () 
     assert.equal((await call(`/pending/${r.body.id}/confirm`, OPERATOR, { by: 'x' })).code, 409, 'answered only once');
     assert.equal((await call('/checks', AGENT.token)).code, 401, 'decision log is operator-only');
     assert.equal((await call('/checks', OPERATOR)).body.length, 1);
+
+    const hash = '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA';
+    assert.equal((await call(`/checks/${r.body.id}/executed`, OPERATOR, { txHash: hash })).code, 401, 'only the agent reports execution');
+    assert.equal((await call(`/checks/${r.body.id}/executed`, AGENT.token, { txHash: 'nope' })).code, 400);
+    assert.equal((await call(`/checks/${r.body.id}/executed`, AGENT.token, { txHash: hash })).body.txHash, hash);
   } finally {
     await server.close();
   }

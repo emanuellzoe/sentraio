@@ -24,9 +24,10 @@ export async function operator<T = CheckResponse[]>(path: string, body?: unknown
   return json as T;
 }
 
-/** Local sandbox only: sign as a known account with a dev key from .env.local. */
+/** Sign with a key from .env.local. Owner and agent full-access keys exist only on the local
+ *  sandbox; the agent's function-call key (vault.execute only) may also be set on testnet. */
 export function devAccount(who: 'owner' | 'agentFull' | 'agent'): Account {
-  if (!isLocalMode()) throw new Error('dev signing is only available on the local sandbox');
+  if (who !== 'agent' && !isLocalMode()) throw new Error('dev signing is only available on the local sandbox');
   const key = { owner: process.env.DEV_OWNER_KEY, agentFull: process.env.DEV_AGENT_FULL_KEY, agent: process.env.DEV_AGENT_KEY }[who];
   if (!key) throw new Error(`missing dev key for ${who}`);
   const id = who === 'owner' ? chain.ownerId : chain.agentId;
@@ -34,3 +35,6 @@ export function devAccount(who: 'owner' | 'agentFull' | 'agent'): Account {
 }
 
 export const txHash = (sent: unknown) => (sent as { transaction: { hash: string } }).transaction.hash;
+
+/** The "play the agent" simulator needs the agent's function-call key and the Preflight service. */
+export const agentSimulatorEnabled = () => Boolean(process.env.DEV_AGENT_KEY && process.env.PREFLIGHT_URL);

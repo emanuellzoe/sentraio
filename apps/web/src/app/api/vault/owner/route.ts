@@ -4,18 +4,19 @@ import { actions } from 'near-api-js';
 import { chain, isLocalMode } from '@/lib/config';
 import { devAccount, txHash } from '@/lib/server';
 
-// owner-only vault methods that need 1 yoctoNEAR (full-access key confirmation)
-const OWNER_METHODS = new Set(['unfreeze', 'trigger_panic', 'clear_panic', 'set_mandate', 'remove_agent', 'withdraw']);
-const NO_DEPOSIT = new Set(['freeze']);
+// vault methods the dashboard may call as the owner; the client sends the deposit
+// (1 yoctoNEAR for owner methods, 0 for freeze, the amount for deposit_near)
+const OWNER_METHODS = new Set(['unfreeze', 'trigger_panic', 'clear_panic', 'set_mandate', 'remove_agent', 'withdraw', 'freeze', 'deposit_near']);
 
 export async function POST(request: Request) {
   if (!isLocalMode()) return Response.json({ error: 'Sign this with your wallet on testnet.' }, { status: 400 });
-  const { method, args } = (await request.json()) as { method: string; args?: Record<string, unknown> };
-  if (!OWNER_METHODS.has(method) && !NO_DEPOSIT.has(method)) return Response.json({ error: `method ${method} not allowed` }, { status: 400 });
+  const { method, args, deposit } = (await request.json()) as { method: string; args?: Record<string, unknown>; deposit?: string };
+  if (!OWNER_METHODS.has(method)) return Response.json({ error: `method ${method} not allowed` }, { status: 400 });
+  if (!/^\d{1,40}$/.test(deposit ?? '1')) return Response.json({ error: 'bad deposit' }, { status: 400 });
   try {
     const sent = await devAccount('owner').signAndSendTransaction({
       receiverId: chain.vaultId,
-      actions: [actions.functionCall(method, args ?? {}, 100_000_000_000_000n, NO_DEPOSIT.has(method) ? 0n : 1n)],
+      actions: [actions.functionCall(method, args ?? {}, method === 'trigger_panic' ? 200_000_000_000_000n : 100_000_000_000_000n, BigInt(deposit ?? '1'))],
       waitUntil: 'FINAL',
       throwOnFailure: false,
     });

@@ -1,24 +1,29 @@
-// Local sandbox only: play the agent from the dashboard so the demo can be driven live.
+// Play the agent from the dashboard so the demo can be driven live (local sandbox, or
+// testnet when the agent's function-call key is configured).
 import { analyzeTx, fetchTx } from '@sentineli/core';
 import { Guard } from '@sentineli/guard';
 import { actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
-import { chain, isLocalMode } from '@/lib/config';
-import { devAccount, txHash } from '@/lib/server';
+import { chain } from '@/lib/config';
+import { agentSimulatorEnabled, devAccount, txHash } from '@/lib/server';
 
-const SCENARIOS = {
-  honest: { receiver: 'shop-payments.test.near', amount: '2', label: 'Pay invoice #1041 to shop-payments' },
-  injected: { receiver: 'shop-payrnents.test.near', amount: '5', label: 'Prompt-injected invoice: pay shop-payrnents' },
-  new_vendor: { receiver: 'coffee-corner.test.near', amount: '1.5', label: 'First order from coffee-corner' },
-  bypass: { receiver: 'shop-payrnents.test.near', amount: '5', label: 'Compromised code calls the vault directly' },
-} as const;
+// receivers live under the sandbox root locally and under the deployer account on testnet
+const scenarios = (suffix: string, scale: number) => ({
+  honest: { receiver: `shop-payments.${suffix}`, amount: String(2 * scale), label: 'Pay invoice #1041 to shop-payments' },
+  injected: { receiver: `shop-payrnents.${suffix}`, amount: String(5 * scale), label: 'Prompt-injected invoice: pay shop-payrnents' },
+  new_vendor: { receiver: `coffee-corner.${suffix}`, amount: String(1.5 * scale), label: 'First order from coffee-corner' },
+  bypass: { receiver: `shop-payrnents.${suffix}`, amount: String(5 * scale), label: 'Compromised code calls the vault directly' },
+});
 
 const yocto = (near: string) => (BigInt(Math.round(Number(near) * 1e6)) * 10n ** 18n).toString();
 
 export async function POST(request: Request) {
-  if (!isLocalMode()) return Response.json({ error: 'Agent simulator runs on the local sandbox only.' }, { status: 400 });
-  const { scenario } = (await request.json()) as { scenario: keyof typeof SCENARIOS };
-  const s = SCENARIOS[scenario];
+  if (!agentSimulatorEnabled()) return Response.json({ error: 'Agent simulator is not configured (DEV_AGENT_KEY, PREFLIGHT_URL).' }, { status: 400 });
+  const local = chain.mode === 'local';
+  // testnet amounts are 10x smaller: the faucet budget is a few NEAR
+  const all = local ? scenarios('test.near', 1) : scenarios(chain.vaultId.split('.').slice(1).join('.'), 0.1);
+  const { scenario } = (await request.json()) as { scenario: keyof typeof all };
+  const s = all[scenario];
   if (!s) return Response.json({ error: 'unknown scenario' }, { status: 400 });
   const action = { type: 'near_transfer' as const, receiver_id: s.receiver, amount: yocto(s.amount) };
 

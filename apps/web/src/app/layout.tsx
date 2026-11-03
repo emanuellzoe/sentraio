@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Silkscreen } from 'next/font/google';
 import Link from 'next/link';
+import { WalletButton, WalletProvider } from '@/components/wallet';
 import './globals.css';
 
 const silkscreen = Silkscreen({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-silkscreen' });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${silkscreen.variable} ${plexMono.variable}`}>
       <body className="flex min-h-screen flex-col">
+        <WalletProvider>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-ink focus:p-2 focus:text-paper">Skip to content</a>
         <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4">
@@ -37,6 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </Link>
               ))}
               <Link href="/vault" className="px-btn px-btn-solid ml-2 py-1">Vault →</Link>
+              <span className="ml-2"><WalletButton /></span>
             </nav>
           </div>
         </header>
@@ -49,6 +52,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <a href="#main" className="bg-paper px-2 font-pixel text-xs underline decoration-2 underline-offset-2">Back to top ↑</a>
           </div>
         </footer>
+        </WalletProvider>
       </body>
     </html>
   );

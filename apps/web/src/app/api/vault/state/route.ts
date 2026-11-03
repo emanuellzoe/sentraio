@@ -1,6 +1,6 @@
 import { formatAmount, viewAccount } from '@sentineli/core';
 import { chain, isConfigured } from '@/lib/config';
-import { view } from '@/lib/server';
+import { agentSimulatorEnabled, view } from '@/lib/server';
 
 interface Mandate {
   limits: { asset: string; per_tx: string; per_day: string }[];
@@ -34,6 +34,8 @@ export async function GET() {
       configured: true,
       mode: chain.mode,
       vaultId: chain.vaultId,
+      agentHint: chain.agentId,
+      agentSimulator: agentSimulatorEnabled(),
       owner,
       guardian,
       panicked,

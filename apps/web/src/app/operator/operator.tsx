@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { SignalList } from '@/components/signals';
 import type { UiSignal } from '@/components/signals';
-import { postJson, usePoll } from '@/components/ui';
+import { FailLensLink, postJson, usePoll } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
+import { useWallet } from '@/components/wallet';
 
 interface Check {
   id: string;
@@ -12,6 +13,7 @@ interface Check {
   by?: string;
   reason?: string;
   at?: string;
+  txHash?: string;
   decision: {
     verdict: string;
     summary: string;
@@ -20,18 +22,21 @@ interface Check {
   };
 }
 
+const NETWORK = process.env.NEXT_PUBLIC_NETWORK ?? 'testnet';
+
 const amount = (a: Check['decision']['request']['action']) =>
   a.type === 'near_transfer' ? `${Number(BigInt(a.amount) / 10n ** 18n) / 1e6} NEAR` : `${a.amount} ${a.token}`;
 
 export function Operator() {
   const { data, error, reload } = usePoll<{ pending: Check[]; checks: Check[] }>('/api/operator', 2000);
   const [busy, setBusy] = useState<string>();
+  const { accountId } = useWallet();
 
   const answer = async (id: string, decision: 'confirm' | 'reject') => {
     const reason = decision === 'reject' ? prompt('Why reject? (recorded)') ?? undefined : undefined;
     setBusy(id + decision);
     try {
-      await postJson('/api/operator', { id, decision, reason });
+      await postJson('/api/operator', { id, decision, reason, by: accountId });
       await reload();
     } catch (e) {
       alert((e as Error).message);
@@ -90,7 +95,10 @@ export function Operator() {
                   <td className="py-2 pr-3 whitespace-nowrap text-xs">{c.at ? new Date(c.at).toLocaleTimeString() : ''}</td>
                   <td className="py-2 pr-3"><Badge value={c.status === 'approved' ? 'allow' : c.status === 'needs_human' ? 'needs_human' : 'refused'} /><br /><span className="text-xs">{c.status}{c.by ? ` by ${c.by}` : ''}</span></td>
                   <td className="py-2 pr-3 break-all">{amount(c.decision.request.action)} → {c.decision.request.action.receiver_id}</td>
-                  <td className="py-2">{c.reason ?? c.decision.summary}</td>
+                  <td className="py-2">
+                    {c.reason ?? c.decision.summary}
+                    {c.txHash && <p className="mt-1 text-xs"><FailLensLink tx={c.txHash} network={NETWORK} /></p>}
+                  </td>
                 </tr>
               ))}
             </tbody>
