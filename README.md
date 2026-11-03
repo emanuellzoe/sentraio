@@ -17,7 +17,7 @@ Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), 
 | Vault (owner `0xnagaa.testnet`) | [`vault.sentraio.testnet`](https://testnet.nearblocks.io/address/vault.sentraio.testnet) |
 | Registry (blocklist) | [`registry.sentraio.testnet`](https://testnet.nearblocks.io/address/registry.sentraio.testnet) |
 | Agent (function-call key: `vault.execute` only) | [`agent.sentraio.testnet`](https://testnet.nearblocks.io/address/agent.sentraio.testnet) |
-| Vault code hash (same as a local `pnpm build:contracts`) | `4pP7avWu5TK1ojZDxm2ERMTuoZjqQV8MCy7XvSjHBj39` |
+| Vault code hash (same as a local `pnpm build:contracts`) | `3Gqmv7uyUipxM3TrjceYsxfAMeLgxZw49zHxKQFDroRa` |
 
 Example transactions on testnet:
 - Compromised agent calls the vault without a Clearance approval → rejected on-chain, nothing moves: [`8SrPbuN5…`](https://testnet.nearblocks.io/txns/8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA)
