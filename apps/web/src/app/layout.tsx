@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <footer className="dither-25 border-t-2 border-ink">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-6">
             <p className="flex items-center gap-2 bg-paper px-2 font-pixel text-xs">
-              <span className="badge badge-solid">SENTINELI</span> Code enforces. AI explains. Built for builders on NEAR.
+              <span className="badge badge-solid">SENTINELI</span> Rules on-chain. Reasons in plain words. Built on NEAR.
             </p>
             <a href="#main" className="bg-paper px-2 font-pixel text-xs underline decoration-2 underline-offset-2">Back to top ↑</a>
           </div>

@@ -6,7 +6,7 @@ import { Badge } from '@/components/verdict';
 // ---------------------------------------------------------------- content
 // Numbers come from the test suite and sandbox runs (see contracts/, packages/, demo/attack/).
 
-const TICKER = ['Code enforces', 'AI explains', 'Allow signs', 'Warn asks a human', 'Block refuses', 'Nothing moves without a signature', 'Panic in one click'];
+const TICKER = ['Rules on-chain', 'Reasons in plain words', 'Allow signs', 'Warn asks a human', 'Block refuses', 'Nothing moves without a signature', 'Panic in one click'];
 
 const GLANCE = [
   { action: 'Agent payment (execute)', gas: '6.9 Tgas', cost: '~0.0007 NEAR' },
