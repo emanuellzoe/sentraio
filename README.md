@@ -8,6 +8,8 @@ Sentineli stops an AI agent on NEAR from paying the wrong account, even when the
 
 Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), **Open Innovation**.
 
+**Hosted demo:** https://sentineli.vercel.app (FailLens, Preflight dry-run and the vault dashboard against testnet; it holds no keys, so the agent simulator and the operator queue run locally, see below).
+
 **Live on NEAR testnet**
 
 | Contract / account | Address |

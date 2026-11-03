@@ -1,0 +1,7 @@
+# never upload local secrets or build artefacts
+**/.env*
+**/node_modules
+**/.next
+contracts/target
+spikes
+.vercel
