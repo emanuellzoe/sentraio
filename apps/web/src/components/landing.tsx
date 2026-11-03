@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-/** Hero subline that cycles through what Sentineli does, with a pause control. */
+/** Hero subline that cycles through what Countersign does, with a pause control. */
 export function RotatingLine({ items }: { items: string[] }) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);

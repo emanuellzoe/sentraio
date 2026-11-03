@@ -1,10 +1,10 @@
-import { EMPTY_CODE_HASH, viewAccount, viewFunction } from '@sentineli/core';
-import type { ViewOptions } from '@sentineli/core';
+import { EMPTY_CODE_HASH, viewAccount, viewFunction } from '@countersign/core';
+import type { ViewOptions } from '@countersign/core';
 import { findLookalike } from './lookalike.ts';
-import type { Level, PreflightConfig, PreflightRequest, Signal, Store } from './types.ts';
+import type { Level, ClearanceConfig, ClearanceRequest, Signal, Store } from './types.ts';
 
 export interface Ctx {
-  cfg: PreflightConfig;
+  cfg: ClearanceConfig;
   view: ViewOptions;
   store: Store;
   now: Date;
@@ -42,7 +42,7 @@ export async function vaultIntegrity(ctx: Ctx, vaultId: string): Promise<Signal>
 }
 
 /** Ask the vault itself whether the mandate allows this action (limits, receivers, freeze). */
-export async function vaultPolicy(ctx: Ctx, req: PreflightRequest): Promise<{ signal: Signal; mandate?: Mandate; preview?: VaultPreview }> {
+export async function vaultPolicy(ctx: Ctx, req: ClearanceRequest): Promise<{ signal: Signal; mandate?: Mandate; preview?: VaultPreview }> {
   const args = { agent_id: req.agentId, action: req.action };
   const [preview, mandate] = await Promise.all([
     viewFunction<VaultPreview>(req.vaultId, 'preview', args, ctx.view),
@@ -64,7 +64,7 @@ async function codeChange(ctx: Ctx, accountId: string, hash: string, role: strin
   return undefined;
 }
 
-export async function receiverAccount(ctx: Ctx, req: PreflightRequest): Promise<Signal[]> {
+export async function receiverAccount(ctx: Ctx, req: ClearanceRequest): Promise<Signal[]> {
   const id = req.action.receiver_id;
   const acc = await viewAccount(id, ctx.view);
   if (!acc) {
@@ -85,7 +85,7 @@ export async function receiverAccount(ctx: Ctx, req: PreflightRequest): Promise<
   return out;
 }
 
-export async function tokenContract(ctx: Ctx, req: PreflightRequest): Promise<Signal[]> {
+export async function tokenContract(ctx: Ctx, req: ClearanceRequest): Promise<Signal[]> {
   if (req.action.type === 'near_transfer') return [];
   const acc = await viewAccount(req.action.token, ctx.view);
   if (!acc || acc.code_hash === EMPTY_CODE_HASH) {
@@ -103,7 +103,7 @@ export async function receiverReputation(ctx: Ctx, receiverId: string): Promise<
   const base = ctx.cfg.nearblocksUrl ?? NEARBLOCKS[ctx.view.network ?? 'testnet'];
   const get = async (path: string) => {
     const res = await (ctx.view.fetchImpl ?? fetch)(`${base}/v1/account/${receiverId}${path}`, {
-      headers: { 'user-agent': 'sentineli-preflight' },
+      headers: { 'user-agent': 'countersign-clearance' },
       signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) throw new Error(`nearblocks HTTP ${res.status}`);
@@ -132,20 +132,20 @@ export async function receiverReputation(ctx: Ctx, receiverId: string): Promise<
   }
 }
 
-export async function priorInteraction(ctx: Ctx, req: PreflightRequest, mandate?: Mandate): Promise<Signal> {
+export async function priorInteraction(ctx: Ctx, req: ClearanceRequest, mandate?: Mandate): Promise<Signal> {
   const id = req.action.receiver_id;
   if (mandate?.allowed_receivers?.includes(id)) {
     return sig('prior_interaction', 'ok', 'Receiver is on the owner allowlist', id, 'vault');
   }
   if ((await ctx.store.knownReceivers(req.vaultId)).has(id)) {
-    return sig('prior_interaction', 'ok', 'Preflight approved payments to this receiver before', id, 'local history');
+    return sig('prior_interaction', 'ok', 'Clearance approved payments to this receiver before', id, 'local history');
   }
   return sig('prior_interaction', 'warn', 'First payment to this receiver', `${req.vaultId} has never paid ${id}.`, 'local history');
 }
 
 type RegistryStatus = 'clean' | 'warn' | 'suspected' | 'blocked';
 
-export async function registry(ctx: Ctx, req: PreflightRequest): Promise<Signal[]> {
+export async function registry(ctx: Ctx, req: ClearanceRequest): Promise<Signal[]> {
   if (!ctx.cfg.registryId) return [sig('registry', 'warn', 'No shared blocklist configured', 'Set registryId to check community reports.', 'registry')];
   const ids = [req.action.receiver_id, ...(req.action.type === 'near_transfer' ? [] : [req.action.token])];
   const rows = await viewFunction<[string, RegistryStatus][]>(ctx.cfg.registryId, 'get_statuses', { account_ids: ids }, ctx.view);
@@ -159,7 +159,7 @@ export async function registry(ctx: Ctx, req: PreflightRequest): Promise<Signal[
   });
 }
 
-export async function lookalike(ctx: Ctx, req: PreflightRequest, mandate?: Mandate): Promise<Signal> {
+export async function lookalike(ctx: Ctx, req: ClearanceRequest, mandate?: Mandate): Promise<Signal> {
   const trusted = new Set([...(mandate?.allowed_receivers ?? []), ...(await ctx.store.knownReceivers(req.vaultId)), ...(ctx.cfg.knownAccounts ?? [])]);
   const twin = findLookalike(req.action.receiver_id, trusted);
   return twin

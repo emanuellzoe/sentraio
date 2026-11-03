@@ -1,17 +1,17 @@
 {
-  "name": "@sentineli/demo-attack",
+  "name": "@countersign/demo-attack",
   "version": "0.1.0",
   "private": true,
-  "description": "Prompt-injected agent vs. Sentineli, end to end in a local sandbox.",
+  "description": "Prompt-injected agent vs. Countersign, end to end in a local sandbox.",
   "type": "module",
   "scripts": {
     "start": "node run.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentineli/core": "workspace:*",
-    "@sentineli/guard": "workspace:*",
-    "@sentineli/preflight": "workspace:*",
+    "@countersign/core": "workspace:*",
+    "@countersign/guard": "workspace:*",
+    "@countersign/clearance": "workspace:*",
     "near-api-js": "7.4.0",
     "near-workspaces": "5.0.0"
   },

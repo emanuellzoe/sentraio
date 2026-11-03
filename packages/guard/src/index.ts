@@ -1,11 +1,11 @@
 // Agent-side wrapper. The agent holds only a function-call key scoped to the vault's
-// `execute`; every payment is first sent to the Preflight service:
+// `execute`; every payment is first sent to the Clearance service:
 //   refused     -> never signed
 //   needs_human -> wait for the operator (the agent cannot answer its own warn)
 //   approved    -> execute(action, approval) on the vault, then explain the outcome
-import { analyzeTx, fetchTx } from '@sentineli/core';
-import type { Network, TxReport } from '@sentineli/core';
-import type { AgentAction, CheckResponse } from '@sentineli/preflight';
+import { analyzeTx, fetchTx } from '@countersign/core';
+import type { Network, TxReport } from '@countersign/core';
+import type { AgentAction, CheckResponse } from '@countersign/clearance';
 import { Account, actions, JsonRpcProvider } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 
@@ -25,7 +25,7 @@ export interface GuardOptions {
   agentId: string;
   /** Function-call access key of the agent account, limited to `vaultId` / `execute`. */
   agentKey: KeyPairString;
-  preflightUrl: string;
+  clearanceUrl: string;
   agentToken: string;
   network?: Network;
   rpcUrl: string;
@@ -55,7 +55,7 @@ export class Guard {
       const status: GuardStatus = check.status === 'rejected' ? 'rejected_by_human' : check.status === 'expired' ? 'expired' : 'refused';
       const message = status === 'rejected_by_human'
         ? `A human rejected this payment${check.reason ? `: ${check.reason}` : ''}.`
-        : status === 'expired' ? 'Nobody confirmed the warning in time; payment not sent.' : `Refused by Preflight. ${check.decision.summary}`;
+        : status === 'expired' ? 'Nobody confirmed the warning in time; payment not sent.' : `Refused by Clearance. ${check.decision.summary}`;
       emit({ stage: 'done', detail: message });
       return { status, message, check };
     }
@@ -93,12 +93,12 @@ export class Guard {
   }
 
   private async request(path: string, init: RequestInit): Promise<CheckResponse> {
-    const res = await fetch(`${this.opts.preflightUrl}${path}`, {
+    const res = await fetch(`${this.opts.clearanceUrl}${path}`, {
       ...init,
       headers: { 'content-type': 'application/json', authorization: `Bearer ${this.opts.agentToken}` },
     });
     const body = (await res.json()) as CheckResponse & { error?: string };
-    if (!res.ok) throw new Error(`preflight ${res.status}: ${body.error ?? 'request failed'}`);
+    if (!res.ok) throw new Error(`clearance ${res.status}: ${body.error ?? 'request failed'}`);
     return body;
   }
 }
@@ -108,7 +108,7 @@ export const payTool = {
   type: 'function',
   function: {
     name: 'pay',
-    description: 'Pay an invoice from the agent vault. Every payment is checked by Sentineli Preflight; blocked payments are refused.',
+    description: 'Pay an invoice from the agent vault. Every payment is checked by Countersign Clearance; blocked payments are refused.',
     parameters: {
       type: 'object',
       properties: {

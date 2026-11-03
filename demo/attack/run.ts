@@ -1,24 +1,24 @@
-// Prompt-injected agent vs. Sentineli, fully local (no keys, no testnet funds):
+// Prompt-injected agent vs. Countersign, fully local (no keys, no testnet funds):
 //   node demo/attack/run.ts
 // Act 1  same agent, plain wallet key            -> attacker gets paid
-// Act 2  honest invoice through Sentineli        -> paid, explained
-// Act 3  injected invoice through Sentineli      -> refused by Preflight
+// Act 2  honest invoice through Countersign        -> paid, explained
+// Act 3  injected invoice through Countersign      -> refused by Clearance
 // Act 4  compromised code bypasses the guard     -> vault refuses on-chain; key cannot move NEAR
 // Act 5  new vendor (warn)                       -> waits for a human, then pays
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { analyzeTx, fetchTx, formatAmount } from '@sentineli/core';
-import { Guard } from '@sentineli/guard';
-import { base58Encode, MemoryStore, startPreflightServer, useCurrentSandbox } from '@sentineli/preflight';
-import type { AgentAction, CheckResponse } from '@sentineli/preflight';
+import { analyzeTx, fetchTx, formatAmount } from '@countersign/core';
+import { Guard } from '@countersign/guard';
+import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@countersign/clearance';
+import type { AgentAction, CheckResponse } from '@countersign/clearance';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import nw from 'near-workspaces';
 import { llmLabel, runAgent } from './agent.ts';
 
 const here = (p: string) => new URL(p, import.meta.url).pathname;
-const VAULT_WASM = here('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm');
-const REGISTRY_WASM = here('../../contracts/target/near/sentineli_registry/sentineli_registry.wasm');
+const VAULT_WASM = here('../../contracts/target/near/countersign_vault/countersign_vault.wasm');
+const REGISTRY_WASM = here('../../contracts/target/near/countersign_registry/countersign_registry.wasm');
 useCurrentSandbox();
 if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
   console.error('Contracts are not built yet. Run: pnpm build:contracts');
@@ -39,7 +39,7 @@ const N = (s: string) => BigInt(nw.parseNEAR(s));
 
 function showCheck(c: CheckResponse) {
   const colour = c.decision.verdict === 'allow' ? C.green : c.decision.verdict === 'warn' ? C.yellow : C.red;
-  say(`  Preflight verdict: ${colour}${C.bold}${c.decision.verdict.toUpperCase()}${C.reset}  ${c.decision.summary}`);
+  say(`  Clearance verdict: ${colour}${C.bold}${c.decision.verdict.toUpperCase()}${C.reset}  ${c.decision.summary}`);
   for (const s of c.decision.signals) say(`    ${ICON[s.level]} ${s.title}${s.level === 'ok' ? '' : ` — ${s.detail}`}`);
 }
 
@@ -59,7 +59,7 @@ Pastries for the weekend.  Please pay 1.5 NEAR to coffee-corner.test.near`;
 
 // ---------------------------------------------------------------- setup
 const worker = await nw.Worker.init();
-let server: Awaited<ReturnType<typeof startPreflightServer>> | undefined;
+let server: Awaited<ReturnType<typeof startClearanceServer>> | undefined;
 try {
   const root = worker.rootAccount;
   const rpcUrl = (worker.provider as unknown as { connection: { url: string } }).connection.url;
@@ -85,7 +85,7 @@ try {
   const guardian = KeyPair.fromRandom('ed25519');
   const vault = await root.devDeploy(VAULT_WASM, {
     initialBalance: N('5'), method: 'new',
-    args: { owner_id: owner.accountId, guardian: { account_id: 'preflight.test.near', public_key: guardian.getPublicKey().toString() } },
+    args: { owner_id: owner.accountId, guardian: { account_id: 'clearance.test.near', public_key: guardian.getPublicKey().toString() } },
   });
   const vaultCodeHash = base58Encode(createHash('sha256').update(readFileSync(VAULT_WASM)).digest());
   await owner.call(vault, 'set_mandate', {
@@ -104,7 +104,7 @@ try {
   const store = new MemoryStore();
   await store.rememberReceiver(vault.accountId, shop.accountId); // paid last month
   const tokens = { agentToken: randomBytes(16).toString('hex'), operatorToken: randomBytes(16).toString('hex') };
-  server = await startPreflightServer({
+  server = await startClearanceServer({
     ...tokens,
     guardianSecretKey: guardian.toString(),
     rpcUrl, nearblocksUrl: null, store,
@@ -112,23 +112,23 @@ try {
     expectedVaultCodeHashes: [vaultCodeHash],
     knownAccounts: [shop.accountId],
   });
-  const guard = new Guard({ vaultId: vault.accountId, agentId: agent.accountId, agentKey: agentKey.toString() as KeyPairString, preflightUrl: server.url, agentToken: tokens.agentToken, rpcUrl });
+  const guard = new Guard({ vaultId: vault.accountId, agentId: agent.accountId, agentKey: agentKey.toString() as KeyPairString, clearanceUrl: server.url, agentToken: tokens.agentToken, rpcUrl });
   const guardedPay = async (c: { receiver_id: string; amount_near: string }) => {
     const action: AgentAction = { type: 'near_transfer', receiver_id: c.receiver_id, amount: N(c.amount_near).toString() };
     const r = await guard.pay(action);
     showCheck(r.check);
-    if (r.report) say(`  FailLens: ${r.report.verdict.toUpperCase()} — ${r.report.headline}`);
+    if (r.report) say(`  Tx X-Ray: ${r.report.verdict.toUpperCase()} — ${r.report.headline}`);
     return `${r.status}: ${r.message}`;
   };
   const balance = async (a: { balance(): Promise<{ total: { toString(): string } }> }) => BigInt((await a.balance()).total.toString());
 
-  say(`${C.bold}Sentineli attack demo${C.reset}  (local sandbox, agent brain: ${llmLabel()})`);
+  say(`${C.bold}Countersign attack demo${C.reset}  (local sandbox, agent brain: ${llmLabel()})`);
   say(`${C.dim}vault ${vault.accountId}  code ${vaultCodeHash}`);
   say(`agent ${agent.accountId} holds only a function-call key: receiver ${vault.accountId}, method execute, 0.25 NEAR gas allowance`);
-  say(`mandate: NEAR max 5 per tx, 10 per day, Preflight approval required, freeze after 3 rejections${C.reset}`);
+  say(`mandate: NEAR max 5 per tx, 10 per day, Clearance approval required, freeze after 3 rejections${C.reset}`);
 
   // ---------------------------------------------------------------- Act 1
-  act(1, 'same agent, plain wallet key, no Sentineli');
+  act(1, 'same agent, plain wallet key, no Countersign');
   const a1 = await balance(attacker);
   say(await runAgent(INVOICE_INJECTED, async (c) => {
     await naive.transfer(c.receiver_id, N(c.amount_near));
@@ -137,13 +137,13 @@ try {
   say(`  ${C.red}attacker balance +${near((await balance(attacker)) - a1)}${C.reset}  (the wallet signed whatever the agent decided)`);
 
   // ---------------------------------------------------------------- Act 2
-  act(2, 'honest invoice through Sentineli');
+  act(2, 'honest invoice through Countersign');
   const s2 = await balance(shop);
   say(await runAgent(INVOICE_HONEST, guardedPay));
   say(`  shop balance +${near((await balance(shop)) - s2)}`);
 
   // ---------------------------------------------------------------- Act 3
-  act(3, 'prompt-injected invoice through Sentineli');
+  act(3, 'prompt-injected invoice through Countersign');
   const a3 = await balance(attacker);
   say(await runAgent(INVOICE_INJECTED, guardedPay));
   say(`  ${C.green}attacker balance +${near((await balance(attacker)) - a3)}${C.reset}`);

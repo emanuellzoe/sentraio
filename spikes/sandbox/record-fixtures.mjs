@@ -1,10 +1,10 @@
 // Records real EXPERIMENTAL_tx_status responses from a local sandbox as test
-// fixtures for packages/core (the exact shape FailLens gets from a live RPC).
+// fixtures for packages/core (the exact shape Tx X-Ray gets from a live RPC).
 import nw from 'near-workspaces';
 import { writeFileSync } from 'node:fs';
 const { Worker, parseNEAR } = nw;
 
-const WASM = new URL('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
 const OUT = new URL('../../packages/core/test/fixtures/', import.meta.url).pathname;
 
 const worker = await Worker.init();

@@ -10,7 +10,7 @@ const TICKER = ['Rules on-chain', 'Reasons in plain words', 'Allow signs', 'Warn
 
 const GLANCE = [
   { action: 'Agent payment (execute)', gas: '6.9 Tgas', cost: '~0.0007 NEAR' },
-  { action: 'Payment with Preflight signature', gas: '7.2 Tgas', cost: '~0.0007 NEAR' },
+  { action: 'Payment with Clearance signature', gas: '7.2 Tgas', cost: '~0.0007 NEAR' },
   { action: 'Rejected attempt (strike)', gas: '2.1 Tgas', cost: '~0.0002 NEAR' },
   { action: 'Panic, 10 tokens + NEAR drained', gas: '47.7 Tgas', cost: '~0.0048 NEAR' },
   { action: 'Blocklist report', gas: '1.9 Tgas', cost: '~0.0002 NEAR' },
@@ -24,61 +24,61 @@ const STATS = [
 
 const LAYERS = [
   {
-    code: 'PRE', name: 'Preflight', tagline: 'Who is being paid, and what will really happen?',
+    code: 'CLR', name: 'Clearance', tagline: 'Who is being paid, and what will really happen?',
     body: 'Checks the receiver and the token before anything is signed, then simulates the payment on real contract code with real balances in a sandbox.',
-    chips: ['Look-alike names', 'Registry', 'Code changes', 'Simulation'], href: '/preflight', cta: 'Try Preflight',
+    chips: ['Look-alike names', 'Registry', 'Code changes', 'Simulation'], href: '/clearance', cta: 'Try Clearance',
   },
   {
     code: 'VLT', name: 'Vault', tagline: 'The mandate the agent cannot step outside of.',
-    body: 'On-chain limits per transaction and per day, single-use Preflight signatures, strikes that auto-freeze, and a constant-gas panic switch. Native NEAR included.',
+    body: 'On-chain limits per transaction and per day, single-use Clearance signatures, strikes that auto-freeze, and a constant-gas panic switch. Native NEAR included.',
     chips: ['Limits', 'Approvals', 'Auto-freeze', 'Panic'], href: '/vault', cta: 'Open the vault',
   },
   {
-    code: 'FLN', name: 'FailLens', tagline: 'Success on top, failure inside? It tells you.',
+    code: 'XRY', name: 'Tx X-Ray', tagline: 'Success on top, failure inside? It tells you.',
     body: 'Reads every receipt of any NEAR transaction, explains each failure with a fix, and shows where the funds actually are now.',
-    chips: ['Receipt tree', 'Fix hints', 'Funds now', 'Testnet + mainnet'], href: '/faillens', cta: 'Explain a transaction',
+    chips: ['Receipt tree', 'Fix hints', 'Funds now', 'Testnet + mainnet'], href: '/xray', cta: 'Explain a transaction',
   },
 ];
 
 const STEPS = [
   { title: 'Agent plans', body: 'The LLM decides to pay. It holds only a function-call key for vault.execute.' },
-  { title: 'Preflight checks', body: 'Nine signals, worst wins. Allow signs, warn waits for an operator, block refuses.' },
+  { title: 'Clearance checks', body: 'Nine signals, worst wins. Allow signs, warn waits for an operator, block refuses.' },
   { title: 'Vault enforces', body: 'Limits, receiver rules and a valid, unused signature, or nothing moves.' },
-  { title: 'FailLens explains', body: 'Every outcome comes back as a plain-language report with the funds trail.' },
+  { title: 'Tx X-Ray explains', body: 'Every outcome comes back as a plain-language report with the funds trail.' },
 ];
 
 const ACTS = [
   { tries: 'Injected invoice, plain wallet key', verdict: 'failed', outcome: 'Attacker +5 NEAR.' },
-  { tries: 'Honest invoice, through Sentineli', verdict: 'allow', outcome: 'Shop +2 NEAR, explained.' },
-  { tries: 'Same injected invoice, through Sentineli', verdict: 'block', outcome: 'shop-payrnents ≈ shop-payments. Attacker +0.' },
+  { tries: 'Honest invoice, through Countersign', verdict: 'allow', outcome: 'Shop +2 NEAR, explained.' },
+  { tries: 'Same injected invoice, through Countersign', verdict: 'block', outcome: 'shop-payrnents ≈ shop-payments. Attacker +0.' },
   { tries: 'Compromised code calls the vault', verdict: 'block', outcome: 'Approval missing or forged. The key cannot move NEAR.' },
   { tries: 'First order from a new vendor', verdict: 'warn', outcome: 'Operator confirms, then it pays.' },
 ];
 
 const STACK: { name: string; what: string; links: [string, string][] }[] = [
   { name: 'near-sdk (Rust)', what: 'Vault and registry contracts, pinned to build for mainnet protocol 86.', links: [['Docs', 'https://docs.near.org/smart-contracts/what-is']] },
-  { name: 'near-workspaces sandbox', what: 'Preflight simulation and every end-to-end test.', links: [['Git', 'https://github.com/near/near-workspaces-js']] },
-  { name: 'NEP-141 / NEP-297', what: 'Token transfers and event logs that the vault and FailLens speak.', links: [['Spec', 'https://nomicon.io/Standards/Tokens/FungibleToken/Core']] },
+  { name: 'near-workspaces sandbox', what: 'Clearance simulation and every end-to-end test.', links: [['Git', 'https://github.com/near/near-workspaces-js']] },
+  { name: 'NEP-141 / NEP-297', what: 'Token transfers and event logs that the vault and Tx X-Ray speak.', links: [['Spec', 'https://nomicon.io/Standards/Tokens/FungibleToken/Core']] },
   { name: 'Function-call keys', what: 'The agent key: one contract, one method, gas-only allowance.', links: [['Docs', 'https://docs.near.org/protocol/access-keys']] },
   { name: 'NearBlocks API', what: 'Receiver age and activity signals.', links: [['API', 'https://api.nearblocks.io/api-docs']] },
-  { name: 'FastNEAR RPC', what: 'Regular and archival nodes, so FailLens also reads old transactions.', links: [['Site', 'https://fastnear.com']] },
-  { name: 'Agent API', what: 'Spending policy for agents. Sentineli covers what it does not: counterparties, simulation, native methods.', links: [['Docs', 'https://docs.agentsonintents.com']] },
+  { name: 'FastNEAR RPC', what: 'Regular and archival nodes, so Tx X-Ray also reads old transactions.', links: [['Site', 'https://fastnear.com']] },
+  { name: 'Agent API', what: 'Spending policy for agents. Countersign covers what it does not: counterparties, simulation, native methods.', links: [['Docs', 'https://docs.agentsonintents.com']] },
   { name: 'NEAR AI Cloud', what: 'Optional real LLM for the attack demo (OpenAI-compatible).', links: [['Docs', 'https://docs.near.ai']] },
 ];
 
 const LIMITS = [
-  'Simulation fully reproduces standard NEP-141 tokens; contracts with too much state (big DEXes) run partially, and Preflight says so with a warn.',
+  'Simulation fully reproduces standard NEP-141 tokens; contracts with too much state (big DEXes) run partially, and Clearance says so with a warn.',
   'Approvals are single-use and expire within 10 minutes: this narrows, but does not remove, the gap between simulation and execution.',
   'Registry “blocked” needs a moderator. Many community reports only make an account “suspected”, so sybils cannot hard-block anyone.',
   'A function-call key’s allowance pays gas only and cannot be topped up; the owner keeps the full-access key to rotate it.',
 ];
 
 const FAQ: [string, string][] = [
-  ['Isn’t this what NEAR’s Agent API already does?', 'The Agent API caps spending and can freeze an agent, but its policy does not protect native methods and it does not ask who is being paid. Sentineli adds the counterparty check, simulation, a vault that covers native transfers, and the failure explainer. Use both.'],
-  ['What if a prompt injection takes over the agent?', 'The agent can still only ask. Preflight blocks look-alike or reported receivers, and the vault refuses any call without a valid, unused Preflight signature. The agent’s key cannot transfer NEAR or add keys.'],
+  ['Isn’t this what NEAR’s Agent API already does?', 'The Agent API caps spending and can freeze an agent, but its policy does not protect native methods and it does not ask who is being paid. Countersign adds the counterparty check, simulation, a vault that covers native transfers, and the failure explainer. Use both.'],
+  ['What if a prompt injection takes over the agent?', 'The agent can still only ask. Clearance blocks look-alike or reported receivers, and the vault refuses any call without a valid, unused Clearance signature. The agent’s key cannot transfer NEAR or add keys.'],
   ['Can the agent approve its own warning?', 'No. The agent token can only request checks; approving a warn needs the separate operator token, and the decision records who made it.'],
-  ['What if the guardian (Preflight) key leaks?', 'An attacker could sign approvals, but only inside the owner’s mandate: limits and receiver rules are enforced by the contract. The owner rotates the guardian or hits Panic.'],
-  ['What happens when a transfer fails?', 'The vault puts the amount back into its ledger and the daily budget. FailLens shows the failed receipt, the refund and where the funds are. Untracked tokens can be recovered with sync_balance.'],
+  ['What if the guardian (Clearance) key leaks?', 'An attacker could sign approvals, but only inside the owner’s mandate: limits and receiver rules are enforced by the contract. The owner rotates the guardian or hits Panic.'],
+  ['What happens when a transfer fails?', 'The vault puts the amount back into its ledger and the daily budget. Tx X-Ray shows the failed receipt, the refund and where the funds are. Untracked tokens can be recovered with sync_balance.'],
   ['Can attackers knock the contracts over with bots?', 'Every caller pays their own gas and cannot grow the vault’s state. Loops are bounded (10 tokens, 50 receivers), and Panic costs the same however many agents exist.'],
 ];
 
@@ -123,15 +123,15 @@ export default function Home() {
       <section>
         <div className="grid items-center gap-10 pb-12 md:grid-cols-[1.35fr_1fr]">
           <div className="space-y-6">
-            <p className="font-pixel text-xs">[ SENTINELI / AGENT SECURITY ON NEAR ]</p>
+            <p className="font-pixel text-xs">[ COUNTERSIGN / AGENT SECURITY ON NEAR ]</p>
             <h1 className="text-4xl leading-tight md:text-5xl">
-              AI agents can hold money now. <b className="font-pixel text-[0.85em] leading-snug">Sentineli decides what they may do with it.</b>
+              AI agents can hold money now. <b className="font-pixel text-[0.85em] leading-snug">Countersign decides what they may do with it.</b>
             </h1>
             <RotatingLine items={['checks who gets paid', 'simulates the payment', 'gates the vault on-chain', 'asks a human when unsure', 'explains every failure']} />
             <p className="max-w-xl">
               A prompt-injected agent will try to pay the wrong account.
               <br />
-              <b>With Sentineli, the money stays where it is.</b>
+              <b>With Countersign, the money stays where it is.</b>
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#layers" className="px-btn">Explore the layers</a>
@@ -223,7 +223,7 @@ export default function Home() {
           ))}
         </ol>
         <div className="grid gap-4 text-sm md:grid-cols-3">
-          <div className="hatch border-2 border-ink p-2"><p className="bg-paper p-3"><b>✗ block</b>: Preflight never signs; the guard refuses.</p></div>
+          <div className="hatch border-2 border-ink p-2"><p className="bg-paper p-3"><b>✗ block</b>: Clearance never signs; the guard refuses.</p></div>
           <div className="dither-25 border-2 border-ink p-2"><p className="bg-paper p-3"><b>! warn</b>: an operator decides; the agent token cannot approve itself.</p></div>
           <div className="hatch border-2 border-ink p-2"><p className="bg-paper p-3"><b>✗ bypass</b>: the vault rejects calls without a valid, unused signature.</p></div>
         </div>
@@ -273,13 +273,13 @@ export default function Home() {
             <p>Everything runs against a local NEAR sandbox: real contracts, real token code, fake money.</p>
             <div className="flex flex-wrap gap-3">
               <Link href="/vault" className="px-btn text-ink">Open the dashboard</Link>
-              <Link href="/faillens" className="border-2 border-paper px-4 py-2 font-pixel uppercase hover:bg-paper hover:text-ink">FailLens</Link>
+              <Link href="/xray" className="border-2 border-paper px-4 py-2 font-pixel uppercase hover:bg-paper hover:text-ink">Tx X-Ray</Link>
             </div>
           </div>
           <pre className="overflow-x-auto text-sm leading-relaxed">{`pnpm install
 pnpm demo:attack                  # the five situations above
 pnpm dev:chain                    # sandbox for the dashboard
-pnpm --filter @sentineli/web dev  # http://localhost:3000`}</pre>
+pnpm --filter @countersign/web dev  # http://localhost:3000`}</pre>
         </div>
       </section>
 

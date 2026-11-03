@@ -28,7 +28,7 @@ pub struct MandateInput {
     /// `None` = any receiver; otherwise only these accounts.
     pub allowed_receivers: Option<Vec<AccountId>>,
     pub expires_at_ns: Option<U64>,
-    /// Require a Preflight approval signed by the guardian key on every action.
+    /// Require a Clearance approval signed by the guardian key on every action.
     pub require_approval: bool,
     /// Rejections before the agent is frozen automatically (0 = never).
     pub max_strikes: u32,

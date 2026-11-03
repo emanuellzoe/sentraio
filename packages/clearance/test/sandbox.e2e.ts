@@ -1,5 +1,5 @@
 // Slow end-to-end checks against a local sandbox (run: pnpm test:sandbox).
-//  1. An approval signed by Preflight is accepted by the real vault wasm, once.
+//  1. An approval signed by Clearance is accepted by the real vault wasm, once.
 //  2. The Simulator runs real testnet token code with real mirrored balances.
 import { strict as assert } from 'node:assert';
 import { generateKeyPairSync } from 'node:crypto';
@@ -9,10 +9,10 @@ import { approve, base58Encode, guardianKey, useCurrentSandbox } from '../src/in
 import type { Decision } from '../src/index.ts';
 import { Simulator } from '../src/simulate.ts';
 
-const WASM = new URL('../../../contracts/target/near/sentineli_vault/sentineli_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
 const N = (near: string) => BigInt(nw.parseNEAR(near));
 
-test('Preflight approval is accepted by the vault contract exactly once', { timeout: 300_000 }, async () => {
+test('Clearance approval is accepted by the vault contract exactly once', { timeout: 300_000 }, async () => {
   useCurrentSandbox();
   const worker = await nw.Worker.init();
   try {
@@ -28,7 +28,7 @@ test('Preflight approval is accepted by the vault contract exactly once', { time
     const vault = await root.devDeploy(WASM, {
       initialBalance: N('10'),
       method: 'new',
-      args: { owner_id: owner.accountId, guardian: { account_id: 'preflight.test.near', public_key: publicKey } },
+      args: { owner_id: owner.accountId, guardian: { account_id: 'clearance.test.near', public_key: publicKey } },
     });
     await owner.call(vault, 'set_mandate', {
       agent_id: agent.accountId,

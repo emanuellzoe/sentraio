@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { UiNode } from '../api/faillens/route';
+import type { UiNode } from '../api/xray/route';
 import { Badge, Panel } from '@/components/verdict';
 
 interface Report {
@@ -21,7 +21,7 @@ interface Report {
 }
 
 const EXAMPLES = [
-  { label: 'Vault blocks a bypass (Sentineli)', tx: '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA', network: 'testnet' },
+  { label: 'Vault blocks a bypass (Countersign)', tx: '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA', network: 'testnet' },
   { label: 'Ref swap NEAR→USDT', tx: 'AjSDQJSUrrkBmuAYVjMkgm6J7ZwJuqvMNQXua1vHe4Qo', network: 'testnet' },
   { label: 'Failed: receiver not registered', tx: 'AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM', network: 'testnet' },
   { label: 'Failed: zero amount', tx: '5ToKYFoveoWPjWAKSqDgFmH2YTFgH2X2JLQbmJcTnF8P', network: 'testnet' },
@@ -46,7 +46,7 @@ export function parseTxInput(input: string, fallback: string): { tx: string; net
   return { tx, network };
 }
 
-export function FailLens() {
+export function XRay() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -61,7 +61,7 @@ export function FailLens() {
     if (!params.get('tx')) return;
     let cancelled = false;
     setState({ loading: true });
-    fetch(`/api/faillens?${query}`)
+    fetch(`/api/xray?${query}`)
       .then(async (res) => {
         const body = await res.json();
         if (!cancelled) setState(res.ok ? { loading: false, report: body } : { loading: false, error: body.error });

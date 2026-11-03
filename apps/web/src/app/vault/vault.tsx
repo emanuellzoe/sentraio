@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FailLensLink, NotConfigured, PixelBar, postJson, usePoll } from '@/components/ui';
+import { XRayLink, NotConfigured, PixelBar, postJson, usePoll } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
 import { useWallet } from '@/components/wallet';
 
@@ -155,7 +155,7 @@ export function Vault() {
                 </div>
               ))}
               <p className="text-sm">
-                Receivers: {a.receivers ? a.receivers.join(', ') : 'any (Preflight decides)'} · approval {a.requireApproval ? 'required' : 'not required'}
+                Receivers: {a.receivers ? a.receivers.join(', ') : 'any (Clearance decides)'} · approval {a.requireApproval ? 'required' : 'not required'}
               </p>
             </div>
             <div className="space-y-3">
@@ -190,7 +190,7 @@ export function Vault() {
                 <li key={i} className="border-l-4 border-ink pl-3">
                   <p className="flex flex-wrap items-center gap-2"><Badge value={r.status === 'executed' ? 'executed' : r.status === 'needs_human' ? 'needs_human' : 'refused'} /> <b className="text-sm">{r.label}</b></p>
                   <p className="text-sm">{r.status}: {r.message}</p>
-                  <FailLensLink tx={r.txHash} network={v.mode} />
+                  <XRayLink tx={r.txHash} network={v.mode} />
                 </li>
               ))}
             </ol>
@@ -234,7 +234,7 @@ export function Vault() {
             <ul className="space-y-1 text-sm">
               {panicSteps.map((s, i) => (
                 <li key={i}>
-                  {s.error ? '✗' : '✓'} {s.step} {s.error && `— ${s.error}`} <FailLensLink tx={s.txHash} signer={s.signer} />
+                  {s.error ? '✗' : '✓'} {s.step} {s.error && `— ${s.error}`} <XRayLink tx={s.txHash} signer={s.signer} />
                 </li>
               ))}
             </ul>
@@ -289,8 +289,8 @@ function OwnerControls({ v, isOwner, local, busy, connected, onSubmit, lastTx }:
             <label className="grid gap-1 text-sm">Max per day<input className="px-input" value={m.perDay} onChange={(e) => setM({ ...m, perDay: e.target.value })} required /></label>
             <label className="grid gap-1 text-sm">Max strikes<input className="px-input" type="number" min="0" value={m.strikes} onChange={(e) => setM({ ...m, strikes: e.target.value })} required /></label>
           </div>
-          <label className="grid gap-1 text-sm">Allowed receivers (comma-separated, empty = any, Preflight decides)<input className="px-input" value={m.receivers} onChange={(e) => setM({ ...m, receivers: e.target.value })} spellCheck={false} /></label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={m.approval} onChange={(e) => setM({ ...m, approval: e.target.checked })} /> require a Preflight approval for every payment</label>
+          <label className="grid gap-1 text-sm">Allowed receivers (comma-separated, empty = any, Clearance decides)<input className="px-input" value={m.receivers} onChange={(e) => setM({ ...m, receivers: e.target.value })} spellCheck={false} /></label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={m.approval} onChange={(e) => setM({ ...m, approval: e.target.checked })} /> require a Clearance approval for every payment</label>
           <button className="px-btn" disabled={!!busy}>{busy === 'set_mandate' ? 'Signing…' : 'Set mandate'}</button>
         </form>
         <div className="space-y-3">
@@ -302,7 +302,7 @@ function OwnerControls({ v, isOwner, local, busy, connected, onSubmit, lastTx }:
           </div>
           {lastTx && (
             <p className="text-sm">
-              ✓ {lastTx.label} sent <FailLensLink tx={lastTx.txHash} signer={lastTx.signer} network={lastTx.network} />
+              ✓ {lastTx.label} sent <XRayLink tx={lastTx.txHash} signer={lastTx.signer} network={lastTx.network} />
             </p>
           )}
         </div>

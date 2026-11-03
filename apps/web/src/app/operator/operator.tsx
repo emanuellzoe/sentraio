@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SignalList } from '@/components/signals';
 import type { UiSignal } from '@/components/signals';
-import { FailLensLink, postJson, usePoll } from '@/components/ui';
+import { XRayLink, postJson, usePoll } from '@/components/ui';
 import { Badge, Panel } from '@/components/verdict';
 import { useWallet, walletEnabled } from '@/components/wallet';
 
@@ -56,7 +56,7 @@ export function Operator() {
   if (error && !data) {
     return (
       <div className="hatch px-frame p-4">
-        <p className="inline-block bg-paper px-2">Preflight service unreachable: {error}. Is <code>pnpm dev:chain</code> running?</p>
+        <p className="inline-block bg-paper px-2">Clearance service unreachable: {error}. Is <code>pnpm dev:chain</code> running?</p>
       </div>
     );
   }
@@ -65,9 +65,9 @@ export function Operator() {
     return (
       <div className="dither-25 px-frame p-6">
         <div className="space-y-2 bg-paper p-4">
-          <p className="font-pixel">The operator queue runs next to the Preflight service.</p>
+          <p className="font-pixel">The operator queue runs next to the Clearance service.</p>
           <p className="text-sm">
-            This public demo holds no keys, so it has no Preflight service. Run it locally with <code className="bg-ink px-1 text-paper">pnpm dev:chain</code> and{' '}
+            This public demo holds no keys, so it has no Clearance service. Run it locally with <code className="bg-ink px-1 text-paper">pnpm dev:chain</code> and{' '}
             <code className="bg-ink px-1 text-paper">pnpm web</code>, or watch it in the demo video and <code>pnpm demo:attack</code>.
           </p>
         </div>
@@ -79,7 +79,7 @@ export function Operator() {
     <div className="space-y-8">
       <Panel title={`Waiting for a human (${data.pending.length})`}>
         {data.pending.length === 0 ? (
-          <p className="text-sm">Nothing to decide. Warns from Preflight show up here; the agent cannot answer them itself.</p>
+          <p className="text-sm">Nothing to decide. Warns from Clearance show up here; the agent cannot answer them itself.</p>
         ) : (
           <ul className="space-y-6">
             {data.pending.map((c) => (
@@ -118,7 +118,7 @@ export function Operator() {
                   <td className="py-2 pr-3 break-all">{amount(c.decision.request.action)} → {c.decision.request.action.receiver_id}</td>
                   <td className="py-2">
                     {c.reason ?? c.decision.summary}
-                    {c.txHash && <p className="mt-1 text-xs"><FailLensLink tx={c.txHash} network={NETWORK} /></p>}
+                    {c.txHash && <p className="mt-1 text-xs"><XRayLink tx={c.txHash} network={NETWORK} /></p>}
                   </td>
                 </tr>
               ))}

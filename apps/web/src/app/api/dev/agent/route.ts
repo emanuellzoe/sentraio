@@ -1,7 +1,7 @@
 // Play the agent from the dashboard so the demo can be driven live (local sandbox, or
 // testnet when the agent's function-call key is configured).
-import { analyzeTx, fetchTx } from '@sentineli/core';
-import { Guard } from '@sentineli/guard';
+import { analyzeTx, fetchTx } from '@countersign/core';
+import { Guard } from '@countersign/guard';
 import { actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import { chain } from '@/lib/config';
@@ -18,7 +18,7 @@ const scenarios = (suffix: string, scale: number) => ({
 const yocto = (near: string) => (BigInt(Math.round(Number(near) * 1e6)) * 10n ** 18n).toString();
 
 export async function POST(request: Request) {
-  if (!agentSimulatorEnabled()) return Response.json({ error: 'Agent simulator is not configured (DEV_AGENT_KEY, PREFLIGHT_URL).' }, { status: 400 });
+  if (!agentSimulatorEnabled()) return Response.json({ error: 'Agent simulator is not configured (DEV_AGENT_KEY, CLEARANCE_URL).' }, { status: 400 });
   const local = chain.mode === 'local';
   // testnet amounts are 10x smaller: the faucet budget is a few NEAR
   const all = local ? scenarios('test.near', 1) : scenarios(chain.vaultId.split('.').slice(1).join('.'), 0.1);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     const waiting = new Promise<null>((r) => (markWaiting = () => r(null)));
     const guard = new Guard({
       vaultId: chain.vaultId, agentId: chain.agentId, agentKey: process.env.DEV_AGENT_KEY as KeyPairString,
-      preflightUrl: process.env.PREFLIGHT_URL!, agentToken: process.env.PREFLIGHT_AGENT_TOKEN!, rpcUrl: chain.rpcUrl,
+      clearanceUrl: process.env.CLEARANCE_URL!, agentToken: process.env.CLEARANCE_AGENT_TOKEN!, rpcUrl: chain.rpcUrl,
       onEvent: (e) => e.stage === 'waiting_for_human' && markWaiting(),
     });
     const pay = guard.pay(action);

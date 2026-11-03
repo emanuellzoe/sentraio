@@ -101,7 +101,7 @@ async function rpc<T>(url: string, method: string, params: unknown, timeoutMs: n
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       signal: AbortSignal.timeout(timeoutMs),
-      body: JSON.stringify({ jsonrpc: '2.0', id: 'sentineli', method, params }),
+      body: JSON.stringify({ jsonrpc: '2.0', id: 'countersign', method, params }),
     });
   } catch (e) {
     if ((e as Error).name === 'TimeoutError') throw new RpcError('HTTP_TIMEOUT', `${url} did not answer in ${timeoutMs} ms`);

@@ -1,7 +1,7 @@
 // Server-only helpers (route handlers / server components). Holds secrets from the
 // environment; nothing here may be imported by a client component.
-import { viewFunction } from '@sentineli/core';
-import type { CheckResponse } from '@sentineli/preflight';
+import { viewFunction } from '@countersign/core';
+import type { CheckResponse } from '@countersign/clearance';
 import { Account, JsonRpcProvider } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import { chain, isLocalMode } from './config';
@@ -10,9 +10,9 @@ export const view = <T>(contract: string, method: string, args: unknown = {}) =>
   viewFunction<T>(contract, method, args, { rpcUrl: chain.rpcUrl });
 
 export async function operator<T = CheckResponse[]>(path: string, body?: unknown): Promise<T> {
-  const url = process.env.PREFLIGHT_URL;
-  const token = process.env.PREFLIGHT_OPERATOR_TOKEN;
-  if (!url || !token) throw new Error('Preflight service not configured (PREFLIGHT_URL / PREFLIGHT_OPERATOR_TOKEN).');
+  const url = process.env.CLEARANCE_URL;
+  const token = process.env.CLEARANCE_OPERATOR_TOKEN;
+  if (!url || !token) throw new Error('Clearance service not configured (CLEARANCE_URL / CLEARANCE_OPERATOR_TOKEN).');
   const res = await fetch(`${url}${path}`, {
     method: body === undefined ? 'GET' : 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
@@ -20,7 +20,7 @@ export async function operator<T = CheckResponse[]>(path: string, body?: unknown
     cache: 'no-store',
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.error ?? `preflight ${res.status}`);
+  if (!res.ok) throw new Error(json.error ?? `clearance ${res.status}`);
   return json as T;
 }
 
@@ -36,5 +36,5 @@ export function devAccount(who: 'owner' | 'agentFull' | 'agent'): Account {
 
 export const txHash = (sent: unknown) => (sent as { transaction: { hash: string } }).transaction.hash;
 
-/** The "play the agent" simulator needs the agent's function-call key and the Preflight service. */
-export const agentSimulatorEnabled = () => Boolean(process.env.DEV_AGENT_KEY && process.env.PREFLIGHT_URL);
+/** The "play the agent" simulator needs the agent's function-call key and the Clearance service. */
+export const agentSimulatorEnabled = () => Boolean(process.env.DEV_AGENT_KEY && process.env.CLEARANCE_URL);

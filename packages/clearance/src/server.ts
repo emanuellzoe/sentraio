@@ -1,4 +1,4 @@
-// Preflight as a separate service: it holds the guardian key, the agent never does.
+// Clearance as a separate service: it holds the guardian key, the agent never does.
 //   POST /check                {vaultId, agentId, action}  (agent token)
 //   GET  /pending/:id                                       (agent token: poll)
 //   GET  /pending                                           (operator token)
@@ -14,9 +14,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { approve } from './approval.ts';
 import type { Approval } from './approval.ts';
-import { runPreflight } from './decide.ts';
+import { runClearance } from './decide.ts';
 import { MemoryStore } from './store.ts';
-import type { Decision, PreflightConfig, PreflightRequest } from './types.ts';
+import type { Decision, ClearanceConfig, ClearanceRequest } from './types.ts';
 
 export type CheckStatus = 'approved' | 'refused' | 'needs_human' | 'rejected' | 'expired';
 
@@ -31,7 +31,7 @@ export interface CheckResponse {
   txHash?: string;
 }
 
-export interface ServerOptions extends PreflightConfig {
+export interface ServerOptions extends ClearanceConfig {
   guardianSecretKey: string;
   agentToken: string;
   operatorToken: string;
@@ -42,14 +42,14 @@ export interface ServerOptions extends PreflightConfig {
   onEvent?: (e: CheckResponse) => void;
 }
 
-export interface PreflightServer {
+export interface ClearanceServer {
   url: string;
   close(): Promise<void>;
 }
 
-export async function startPreflightServer(opts: ServerOptions): Promise<PreflightServer> {
+export async function startClearanceServer(opts: ServerOptions): Promise<ClearanceServer> {
   const store = opts.store ?? new MemoryStore();
-  const cfg: PreflightConfig = { ...opts, store };
+  const cfg: ClearanceConfig = { ...opts, store };
   const view = { network: opts.network, rpcUrl: opts.rpcUrl, fetchImpl: opts.fetchImpl };
   const checks = new Map<string, CheckResponse & { createdAt: number }>();
 
@@ -75,9 +75,9 @@ export async function startPreflightServer(opts: ServerOptions): Promise<Preflig
     expireStale();
     if (req.method === 'POST' && path[0] === 'check' && path.length === 1) {
       if (role !== 'agent') return [401, { error: 'agent token required' }];
-      const request = body as PreflightRequest;
+      const request = body as ClearanceRequest;
       if (!request?.vaultId || !request?.agentId || !request?.action) return [400, { error: 'vaultId, agentId, action required' }];
-      const decision = await runPreflight(request, cfg);
+      const decision = await runClearance(request, cfg);
       const base = { id: randomUUID(), decision, createdAt: Date.now() };
       if (decision.verdict === 'block') return [200, strip(publish({ ...base, status: 'refused' }))];
       if (decision.verdict === 'warn') return [200, strip(publish({ ...base, status: 'needs_human' }))];
@@ -116,7 +116,7 @@ export async function startPreflightServer(opts: ServerOptions): Promise<Preflig
       if (!by) return [400, { error: '"by" (who decided) is required' }];
       if (path[2] === 'reject') return [200, strip(publish({ ...cur, status: 'rejected', by, reason: body?.reason }))];
       // re-run the checks: state may have changed while the human was deciding
-      const fresh = await runPreflight(cur.decision.request, cfg);
+      const fresh = await runClearance(cur.decision.request, cfg);
       if (fresh.verdict === 'block') return [200, strip(publish({ ...cur, decision: fresh, status: 'refused', by }))];
       return [200, strip(publish({ ...cur, decision: fresh, status: 'approved', by, approval: await sign(fresh, by) }))];
     }

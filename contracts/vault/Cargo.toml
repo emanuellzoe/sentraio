@@ -1,5 +1,5 @@
 [package]
-name = "sentineli-vault"
+name = "countersign-vault"
 version = "0.1.0"
 edition = "2021"
 publish = false

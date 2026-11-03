@@ -3,7 +3,7 @@
 import nw from 'near-workspaces';
 const { Worker, parseNEAR, KeyPairEd25519 } = nw;
 
-const WASM = new URL('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
 const check = (label, ok, extra = '') => console.log(`${ok ? 'PASS' : 'FAIL'}  ${label} ${extra}`);
 const ret = (r) => { try { return r.parseResult(); } catch { return null; } };
 
@@ -19,7 +19,7 @@ try {
   const agent = await owner.createSubAccount('agent', { initialBalance: parseNEAR('5') });
   const shop = await root.createSubAccount('shop', { initialBalance: parseNEAR('1') });
   const guardianKey = KeyPairEd25519.fromRandom();
-  const guardian = await root.createSubAccount('preflight', { initialBalance: parseNEAR('1') });
+  const guardian = await root.createSubAccount('clearance', { initialBalance: parseNEAR('1') });
 
   const token = await root.importContract({ testnetContract: 'wrap.testnet' });
   await token.call(token, 'new', {});
@@ -82,7 +82,7 @@ try {
   const sig = guardianKey.sign(Buffer.from(msg)).signature;
   const approval = { signature: Buffer.from(sig).toString('base64'), expires_at_ns: expires };
   r = meter('execute with approval signature', await exec(action, approval));
-  check('valid Preflight approval -> executed', ret(r)?.status === 'executed', JSON.stringify(ret(r)));
+  check('valid Clearance approval -> executed', ret(r)?.status === 'executed', JSON.stringify(ret(r)));
   r = await exec(action, approval);
   check('replayed approval -> rejected', ret(r)?.reason === 'bad_signature');
 
