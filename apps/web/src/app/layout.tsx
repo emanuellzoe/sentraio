@@ -1,57 +1,54 @@
-import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Silkscreen } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import Link from 'next/link';
+import { AppIcon, NavLinks } from '@/components/nav';
 import { WalletButton, WalletProvider } from '@/components/wallet';
 import './globals.css';
 
-const silkscreen = Silkscreen({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-silkscreen' });
-const plexMono = IBM_Plex_Mono({ weight: ['400', '600'], subsets: ['latin'], variable: '--font-plex-mono' });
+// Apple devices render SF Pro through -apple-system; Inter is the fallback elsewhere.
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Sentraio — a guard for AI agents that hold money on NEAR',
   description: 'Counterparty checks, sandbox simulation and an approval-gated vault for AI agents on NEAR, plus Tx X-Ray to explain what happened.',
 };
 
-const NAV = [
-  { href: '/#layers', label: 'Layers' },
-  { href: '/#attack', label: 'Attack' },
-  { href: '/xray', label: 'Tx X-Ray' },
-  { href: '/clearance', label: 'Clearance' },
-  { href: '/operator', label: 'Operator' },
-];
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f2f2f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${silkscreen.variable} ${plexMono.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body className="flex min-h-screen flex-col">
         <WalletProvider>
-        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-ink focus:p-2 focus:text-paper">Skip to content</a>
-        <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4">
-            <Link href="/" className="flex items-center gap-2 font-pixel text-2xl tracking-tight">
-              SENTRAIO<span className="cursor" />
-              <span className="badge badge-solid text-[10px]">AGNT-SEC</span>
-            </Link>
-            <nav className="flex flex-wrap items-center gap-1 font-pixel text-sm">
-              {NAV.map((n) => (
-                <Link key={n.href} href={n.href} className="px-2 py-1 hover:bg-ink hover:text-paper">
-                  {n.label}
-                </Link>
-              ))}
-              <Link href="/vault" className="px-btn px-btn-solid ml-2 py-1">Vault →</Link>
-              <span className="ml-2"><WalletButton /></span>
-            </nav>
-          </div>
-        </header>
-        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-10">{children}</main>
-        <footer className="dither-25 border-t-2 border-ink">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-6">
-            <p className="flex items-center gap-2 bg-paper px-2 font-pixel text-xs">
-              <span className="badge badge-solid">SENTRAIO</span> Rules on-chain. Reasons in plain words. Built on NEAR.
-            </p>
-            <a href="#main" className="bg-paper px-2 font-pixel text-xs underline decoration-2 underline-offset-2">Back to top ↑</a>
-          </div>
-        </footer>
+          <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-blue focus:p-2 focus:text-white">
+            Skip to content
+          </a>
+          <header className="ios-nav sticky top-0 z-30">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-2.5">
+              <Link href="/" className="flex items-center gap-2.5 text-[1.05rem] font-semibold tracking-tight">
+                <AppIcon />
+                Sentraio
+              </Link>
+              <div className="flex flex-wrap items-center gap-3">
+                <NavLinks />
+                <WalletButton />
+              </div>
+            </div>
+          </header>
+          <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-10">{children}</main>
+          <footer className="border-t-[0.5px] border-sep">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-6 text-sm text-label2">
+              <p className="flex items-center gap-2">
+                <AppIcon size={20} /> Sentraio · Rules on-chain. Reasons in plain words. Built on NEAR.
+              </p>
+              <a href="#main" className="ios-link">Back to top</a>
+            </div>
+          </footer>
         </WalletProvider>
       </body>
     </html>

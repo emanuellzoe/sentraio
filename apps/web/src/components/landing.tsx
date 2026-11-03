@@ -12,10 +12,9 @@ export function RotatingLine({ items }: { items: string[] }) {
     return () => clearInterval(t);
   }, [paused, items.length]);
   return (
-    <p className="flex flex-wrap items-center gap-3 text-xl md:text-2xl">
-      <span className="font-pixel">→</span>
-      <span aria-live="polite" className="cursor">{items[i]}</span>
-      <button type="button" onClick={() => setPaused((p) => !p)} className="border-2 border-ink px-2 font-pixel text-[10px] hover:bg-ink hover:text-paper" aria-pressed={paused}>
+    <p className="flex flex-wrap items-center gap-3 text-xl text-label2 md:text-2xl">
+      <span aria-live="polite" key={i} className="fade-in font-semibold text-blue">{items[i]}</span>
+      <button type="button" onClick={() => setPaused((p) => !p)} className="pill pill-gray hover:text-label" aria-pressed={paused}>
         {paused ? 'Play' : 'Pause'}
       </button>
     </p>

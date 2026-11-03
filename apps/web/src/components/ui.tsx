@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
-/** Segmented pixel bar: filled blocks for `value / max`. */
-export function PixelBar({ value, max, segments = 12 }: { value: number; max: number; segments?: number }) {
-  const filled = max > 0 ? Math.min(segments, Math.round((value / max) * segments)) : 0;
+/** iOS-style progress bar; turns orange then red as it fills up. */
+export function ProgressBar({ value, max }: { value: number; max: number }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  const colour = pct >= 100 ? 'bg-red' : pct >= 75 ? 'bg-orange' : 'bg-blue';
   return (
-    <span className="inline-flex gap-[2px] align-middle" aria-label={`${value} of ${max}`}>
-      {Array.from({ length: segments }, (_, i) => (
-        <span key={i} className={`inline-block h-3 w-2 border border-ink ${i < filled ? 'bg-ink' : 'bg-paper'}`} />
-      ))}
+    <span className="inline-block h-1.5 w-40 overflow-hidden rounded-full bg-fill align-middle" role="progressbar" aria-valuenow={value} aria-valuemax={max}>
+      <span className={`block h-full rounded-full transition-[width] duration-500 ${colour}`} style={{ width: `${pct}%` }} />
     </span>
   );
 }
@@ -18,13 +17,13 @@ export function PixelBar({ value, max, segments = 12 }: { value: number; max: nu
 export function XRayLink({ tx, network = 'local' }: { tx?: string; signer?: string; network?: string }) {
   if (!tx) return null;
   return (
-    <span className="inline-flex gap-3">
-      <Link className="underline decoration-2 underline-offset-2" href={`/xray?${new URLSearchParams({ tx, network })}`}>
-        Tx X-Ray ↗
+    <span className="inline-flex gap-3 text-sm">
+      <Link className="ios-link" href={`/xray?${new URLSearchParams({ tx, network })}`}>
+        Tx X-Ray ›
       </Link>
       {network !== 'local' && (
-        <a className="underline decoration-2 underline-offset-2" href={`https://${network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${tx}`} target="_blank" rel="noreferrer">
-          explorer ↗
+        <a className="ios-link" href={`https://${network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/txns/${tx}`} target="_blank" rel="noreferrer">
+          Explorer ↗
         </a>
       )}
     </span>
@@ -63,15 +62,28 @@ export async function postJson<T = any>(url: string, body?: unknown): Promise<T>
   return json;
 }
 
-export function NotConfigured() {
+export function Skeleton({ h = 'h-40' }: { h?: string }) {
+  return <div className={`ios-card ${h} animate-pulse`} />;
+}
+
+export function Notice({ title, children, tone = 'gray' }: { title: string; children?: React.ReactNode; tone?: 'gray' | 'red' | 'orange' }) {
+  const icon = tone === 'red' ? '✕' : tone === 'orange' ? '!' : 'i';
+  const colour = tone === 'red' ? 'text-red' : tone === 'orange' ? 'text-orange' : 'text-blue';
   return (
-    <div className="dither-25 px-frame p-6">
-      <div className="inline-block space-y-2 bg-paper p-3">
-        <p className="font-pixel">No vault configured.</p>
-        <p className="text-sm">
-          Run <code className="bg-ink px-1 text-paper">pnpm dev:chain</code> for a local sandbox (writes <code>apps/web/.env.local</code>), then restart the web app.
-        </p>
+    <div className="ios-card flex gap-3 p-5">
+      <span className={`flex h-7 w-7 flex-none items-center justify-center rounded-full bg-fill text-sm font-bold ${colour}`}>{icon}</span>
+      <div className="space-y-1">
+        <p className="font-semibold">{title}</p>
+        {children && <div className="text-sm text-label2">{children}</div>}
       </div>
     </div>
+  );
+}
+
+export function NotConfigured() {
+  return (
+    <Notice title="No vault configured">
+      Run <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm dev:chain</code> for a local sandbox (writes <code className="font-mono text-xs">apps/web/.env.local</code>), then restart the web app.
+    </Notice>
   );
 }
