@@ -4,13 +4,13 @@
 // account, then write the real value read through view methods.
 import { analyzeTx, RPC_URLS, viewFunction } from '@sentineli/core';
 import type { Network, RawTx } from '@sentineli/core';
+import { useCurrentSandbox } from './sandbox.ts';
 import type { PreflightRequest, Signal, SimulationResult } from './types.ts';
 
 type NW = typeof import('near-workspaces');
 type Worker = Awaited<ReturnType<NW['Worker']['init']>>;
 type NearAccount = Worker['rootAccount'];
 
-const SANDBOX_VERSION = '2.14.0';
 const MARKER = 123_456_789_123n;
 const u128le = (n: bigint) => {
   const b = Buffer.alloc(16);
@@ -45,10 +45,7 @@ export class Simulator {
 
   async start(): Promise<void> {
     if (this.worker) return;
-    // near-workspaces ships an old neard that cannot load current wasm; fetch a current one on first install
-    if (!process.env.SANDBOX_ARTIFACT_URL && process.platform === 'darwin' && process.arch === 'arm64') {
-      process.env.SANDBOX_ARTIFACT_URL = `https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore/Darwin-arm64/${SANDBOX_VERSION}/near-sandbox.tar.gz`;
-    }
+    useCurrentSandbox();
     this.nw = ((await import('near-workspaces')) as unknown as { default: NW }).default;
     this.worker = await this.nw.Worker.init();
   }

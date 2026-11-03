@@ -3,9 +3,9 @@
 // Starts a sandbox, deploys vault + registry, creates owner/agent/vendors, runs the
 // Preflight service, seeds some activity, and writes apps/web/.env.local.
 import { createHash, randomBytes } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { Guard } from '@sentineli/guard';
-import { base58Encode, MemoryStore, startPreflightServer } from '@sentineli/preflight';
+import { base58Encode, MemoryStore, startPreflightServer, useCurrentSandbox } from '@sentineli/preflight';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import nw from 'near-workspaces';
@@ -14,7 +14,11 @@ const here = (p: string) => new URL(p, import.meta.url).pathname;
 const VAULT_WASM = here('../../contracts/target/near/sentineli_vault/sentineli_vault.wasm');
 const REGISTRY_WASM = here('../../contracts/target/near/sentineli_registry/sentineli_registry.wasm');
 const PREFLIGHT_PORT = Number(process.env.PREFLIGHT_PORT ?? 4010);
-process.env.SANDBOX_ARTIFACT_URL ??= 'https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore/Darwin-arm64/2.14.0/near-sandbox.tar.gz';
+useCurrentSandbox();
+if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
+  console.error('Contracts are not built yet. Run: pnpm build:contracts');
+  process.exit(1);
+}
 const N = (s: string) => BigInt(nw.parseNEAR(s));
 
 const worker = await nw.Worker.init();
