@@ -2,8 +2,8 @@
 // vault's and receiver's real balances mirrored in. Big contracts refuse remote
 // view_state, so balances are rebuilt: learn the storage layout locally with a probe
 // account, then write the real value read through view methods.
-import { analyzeTx, RPC_URLS, viewFunction } from '@countersign/core';
-import type { Network, RawTx } from '@countersign/core';
+import { analyzeTx, RPC_URLS, viewFunction } from '@sentraio/core';
+import type { Network, RawTx } from '@sentraio/core';
 import { useCurrentSandbox } from './sandbox.ts';
 import type { ClearanceRequest, Signal, SimulationResult } from './types.ts';
 
@@ -128,7 +128,7 @@ export class Simulator {
   private async load(accountId: string, wantState: boolean): Promise<NearAccount> {
     const nw = this.nw!;
     const root = this.worker!.rootAccount;
-    // the near.org default RPC is slow/unreliable; use the same endpoint as the rest of Countersign
+    // the near.org default RPC is slow/unreliable; use the same endpoint as the rest of Sentraio
     const rpc = nw.JsonRpcProvider.from(RPC_URLS[this.network].regular);
     const view = await rpc.viewAccount(accountId);
     if (this.loaded.get(accountId) === view.code_hash) return root.getAccount(accountId);

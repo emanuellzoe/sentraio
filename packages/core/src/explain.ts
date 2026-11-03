@@ -23,7 +23,7 @@ export function analyzeTx(tx: RawTx, opts: AnalyzeOptions = {}): TxReport {
   const movements = extractMovements(root);
   const net = netChanges(movements);
   const returnValue = 'SuccessValue' in tx.status ? decodeBase64Json(tx.status.SuccessValue) : undefined;
-  const rejection = countersignRejection(returnValue, events);
+  const rejection = sentraioRejection(returnValue, events);
 
   let verdict: Verdict = 'success';
   if ('Failure' in tx.status) verdict = 'failed';
@@ -35,7 +35,7 @@ export function analyzeTx(tx: RawTx, opts: AnalyzeOptions = {}): TxReport {
   const first = failures[0];
   const headline = {
     success: `Succeeded. ${funds}`,
-    rejected: `Stopped by the Countersign vault: ${rejection?.replaceAll('_', ' ')}. No funds moved.`,
+    rejected: `Stopped by the Sentraio vault: ${rejection?.replaceAll('_', ' ')}. No funds moved.`,
     partial: `Partly failed at ${first?.executor}: ${first?.error.title}. ${hadRefund(root, events) ? 'Funds were returned. ' : ''}${funds}`,
     failed: `Failed at ${first?.executor}: ${first?.error.title}. ${funds}`,
   }[verdict];
@@ -56,9 +56,9 @@ export function analyzeTx(tx: RawTx, opts: AnalyzeOptions = {}): TxReport {
   };
 }
 
-function countersignRejection(returnValue: unknown, events: TxReport['events']): string | undefined {
+function sentraioRejection(returnValue: unknown, events: TxReport['events']): string | undefined {
   const rv = returnValue as { status?: string; reason?: string } | undefined;
-  if (rv?.status === 'rejected' && events.some((e) => e.standard === 'countersign' && e.event === 'action_rejected')) {
+  if (rv?.status === 'rejected' && events.some((e) => e.standard === 'sentraio' && e.event === 'action_rejected')) {
     return rv.reason ?? 'rejected';
   }
   return undefined;
@@ -69,7 +69,7 @@ function hadRefund(root: ReceiptNode, events: TxReport['events']): boolean {
   walk(root, (n) => {
     if (n.role === 'deposit_refund' || n.logs.some((l) => l.startsWith('Refund '))) found = true;
   });
-  return found || events.some((e) => e.standard === 'countersign' && (e.data as any[])?.some?.((d) => d?.refunded && d.refunded !== '0'));
+  return found || events.some((e) => e.standard === 'sentraio' && (e.data as any[])?.some?.((d) => d?.refunded && d.refunded !== '0'));
 }
 
 export function formatAmount(amount: string, decimals?: number): string {

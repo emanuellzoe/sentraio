@@ -164,7 +164,7 @@
         "executor_id": "dev-22289-29632.test.near",
         "gas_burnt": 2789588444939,
         "logs": [
-          "EVENT_JSON:{\"standard\":\"countersign\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"receiver_id\":\"shop.test.near\",\"amount\":\"1000000000000000000000000\",\"approved\":false}]}"
+          "EVENT_JSON:{\"standard\":\"sentraio\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"receiver_id\":\"shop.test.near\",\"amount\":\"1000000000000000000000000\",\"approved\":false}]}"
         ],
         "metadata": {
           "contracts": [
@@ -536,7 +536,7 @@
         "executor_id": "dev-22289-29632.test.near",
         "gas_burnt": 1607076438432,
         "logs": [
-          "EVENT_JSON:{\"standard\":\"countersign\",\"version\":\"1.0.0\",\"event\":\"action_executed\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"amount\":\"1000000000000000000000000\",\"refunded\":\"0\"}]}"
+          "EVENT_JSON:{\"standard\":\"sentraio\",\"version\":\"1.0.0\",\"event\":\"action_executed\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"ft_transfer\",\"asset\":\"wrap.testnet\",\"amount\":\"1000000000000000000000000\",\"refunded\":\"0\"}]}"
         ],
         "metadata": {
           "contracts": [

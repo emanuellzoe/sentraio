@@ -1,24 +1,24 @@
-// Prompt-injected agent vs. Countersign, fully local (no keys, no testnet funds):
+// Prompt-injected agent vs. Sentraio, fully local (no keys, no testnet funds):
 //   node demo/attack/run.ts
 // Act 1  same agent, plain wallet key            -> attacker gets paid
-// Act 2  honest invoice through Countersign        -> paid, explained
-// Act 3  injected invoice through Countersign      -> refused by Clearance
+// Act 2  honest invoice through Sentraio        -> paid, explained
+// Act 3  injected invoice through Sentraio      -> refused by Clearance
 // Act 4  compromised code bypasses the guard     -> vault refuses on-chain; key cannot move NEAR
 // Act 5  new vendor (warn)                       -> waits for a human, then pays
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { analyzeTx, fetchTx, formatAmount } from '@countersign/core';
-import { Guard } from '@countersign/guard';
-import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@countersign/clearance';
-import type { AgentAction, CheckResponse } from '@countersign/clearance';
+import { analyzeTx, fetchTx, formatAmount } from '@sentraio/core';
+import { Guard } from '@sentraio/guard';
+import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@sentraio/clearance';
+import type { AgentAction, CheckResponse } from '@sentraio/clearance';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import nw from 'near-workspaces';
 import { llmLabel, runAgent } from './agent.ts';
 
 const here = (p: string) => new URL(p, import.meta.url).pathname;
-const VAULT_WASM = here('../../contracts/target/near/countersign_vault/countersign_vault.wasm');
-const REGISTRY_WASM = here('../../contracts/target/near/countersign_registry/countersign_registry.wasm');
+const VAULT_WASM = here('../../contracts/target/near/sentraio_vault/sentraio_vault.wasm');
+const REGISTRY_WASM = here('../../contracts/target/near/sentraio_registry/sentraio_registry.wasm');
 useCurrentSandbox();
 if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
   console.error('Contracts are not built yet. Run: pnpm build:contracts');
@@ -122,13 +122,13 @@ try {
   };
   const balance = async (a: { balance(): Promise<{ total: { toString(): string } }> }) => BigInt((await a.balance()).total.toString());
 
-  say(`${C.bold}Countersign attack demo${C.reset}  (local sandbox, agent brain: ${llmLabel()})`);
+  say(`${C.bold}Sentraio attack demo${C.reset}  (local sandbox, agent brain: ${llmLabel()})`);
   say(`${C.dim}vault ${vault.accountId}  code ${vaultCodeHash}`);
   say(`agent ${agent.accountId} holds only a function-call key: receiver ${vault.accountId}, method execute, 0.25 NEAR gas allowance`);
   say(`mandate: NEAR max 5 per tx, 10 per day, Clearance approval required, freeze after 3 rejections${C.reset}`);
 
   // ---------------------------------------------------------------- Act 1
-  act(1, 'same agent, plain wallet key, no Countersign');
+  act(1, 'same agent, plain wallet key, no Sentraio');
   const a1 = await balance(attacker);
   say(await runAgent(INVOICE_INJECTED, async (c) => {
     await naive.transfer(c.receiver_id, N(c.amount_near));
@@ -137,13 +137,13 @@ try {
   say(`  ${C.red}attacker balance +${near((await balance(attacker)) - a1)}${C.reset}  (the wallet signed whatever the agent decided)`);
 
   // ---------------------------------------------------------------- Act 2
-  act(2, 'honest invoice through Countersign');
+  act(2, 'honest invoice through Sentraio');
   const s2 = await balance(shop);
   say(await runAgent(INVOICE_HONEST, guardedPay));
   say(`  shop balance +${near((await balance(shop)) - s2)}`);
 
   // ---------------------------------------------------------------- Act 3
-  act(3, 'prompt-injected invoice through Countersign');
+  act(3, 'prompt-injected invoice through Sentraio');
   const a3 = await balance(attacker);
   say(await runAgent(INVOICE_INJECTED, guardedPay));
   say(`  ${C.green}attacker balance +${near((await balance(attacker)) - a3)}${C.reset}`);

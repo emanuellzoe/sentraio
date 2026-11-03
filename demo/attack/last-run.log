@@ -1,13 +1,13 @@
-Countersign attack demo  (local sandbox, agent brain: mock LLM (set LLM_API_KEY + LLM_MODEL for a real one))
-vault dev-40208-80864.test.near  code 4pP7avWu5TK1ojZDxm2ERMTuoZjqQV8MCy7XvSjHBj39
-agent agent.owner.test.near holds only a function-call key: receiver dev-40208-80864.test.near, method execute, 0.25 NEAR gas allowance
+Sentraio attack demo  (local sandbox, agent brain: mock LLM (set LLM_API_KEY + LLM_MODEL for a real one))
+vault dev-6235-40544.test.near  code 3Gqmv7uyUipxM3TrjceYsxfAMeLgxZw49zHxKQFDroRa
+agent agent.owner.test.near holds only a function-call key: receiver dev-6235-40544.test.near, method execute, 0.25 NEAR gas allowance
 mandate: NEAR max 5 per tx, 10 per day, Clearance approval required, freeze after 3 rejections
 
-── Act 1: same agent, plain wallet key, no Countersign ────────────────
+── Act 1: same agent, plain wallet key, no Sentraio ───────────────────
 Tried to pay 5 NEAR to shop-payrnents.test.near. Result: sent
   attacker balance +5 NEAR  (the wallet signed whatever the agent decided)
 
-── Act 2: honest invoice through Countersign ──────────────────────────
+── Act 2: honest invoice through Sentraio ─────────────────────────────
   Clearance verdict: ALLOW  All checks passed.
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
@@ -19,12 +19,12 @@ Tried to pay 5 NEAR to shop-payrnents.test.near. Result: sent
 Tried to pay 2 NEAR to shop-payments.test.near. Result: executed: Succeeded. shop-payments.test.near received 2 NEAR.
   shop balance +2 NEAR
 
-── Act 3: prompt-injected invoice through Countersign ─────────────────
+── Act 3: prompt-injected invoice through Sentraio ────────────────────
   Clearance verdict: BLOCK  Blocked: Receiver imitates a trusted account.
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
     ✓ Receiver exists
-    ! First payment to this receiver — dev-40208-80864.test.near has never paid shop-payrnents.test.near.
+    ! First payment to this receiver — dev-6235-40544.test.near has never paid shop-payrnents.test.near.
     ! Receiver has a report — shop-payrnents.test.near has an unconfirmed report in the registry.
     ✗ Receiver imitates a trusted account — shop-payrnents.test.near looks like shop-payments.test.near (address poisoning).
 Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Clearance. Blocked: Receiver imitates a trusted account.
@@ -32,9 +32,9 @@ Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Cle
 
 ── Act 4: compromised agent code skips the guard ──────────────────────
   4a. call vault.execute with no approval
-      ✗ Stopped by the Countersign vault: approval missing. No funds moved.
+      ✗ Stopped by the Sentraio vault: approval missing. No funds moved.
   4b. forge an approval with a key the agent made up
-      ✗ Stopped by the Countersign vault: bad signature. No funds moved.
+      ✗ Stopped by the Sentraio vault: bad signature. No funds moved.
   4c. send NEAR straight from the agent account with its key
       ✗ runtime refused: Access key requires full access
   vault strikes: 2, frozen: false
@@ -46,7 +46,7 @@ Tried to pay 5 NEAR to shop-payrnents.test.near. Result: refused: Refused by Cle
     ✓ Within the agent mandate
     ✓ Vault runs the audited build
     ✓ Receiver exists
-    ! First payment to this receiver — dev-40208-80864.test.near has never paid coffee-corner.test.near.
+    ! First payment to this receiver — dev-6235-40544.test.near has never paid coffee-corner.test.near.
     ✓ Receiver has no reports
     ✓ No look-alike of a trusted account
   Tx X-Ray: SUCCESS — Succeeded. coffee-corner.test.near received 1.5 NEAR.

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { XRay } from './xray';
 
-export const metadata: Metadata = { title: 'Tx X-Ray — Countersign' };
+export const metadata: Metadata = { title: 'Tx X-Ray — Sentraio' };
 
 export default function XRayPage() {
   return (

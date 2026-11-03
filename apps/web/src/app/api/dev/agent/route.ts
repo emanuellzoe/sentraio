@@ -1,7 +1,7 @@
 // Play the agent from the dashboard so the demo can be driven live (local sandbox, or
 // testnet when the agent's function-call key is configured).
-import { analyzeTx, fetchTx } from '@countersign/core';
-import { Guard } from '@countersign/guard';
+import { analyzeTx, fetchTx } from '@sentraio/core';
+import { Guard } from '@sentraio/guard';
 import { actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import { chain } from '@/lib/config';

@@ -21,7 +21,7 @@ interface Report {
 }
 
 const EXAMPLES = [
-  { label: 'Vault blocks a bypass (Countersign)', tx: '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA', network: 'testnet' },
+  { label: 'Vault blocks a bypass (Sentraio)', tx: '8SrPbuN53Sktmez5fzoKsRjU68PpynkY3fUaAuSWuMA', network: 'testnet' },
   { label: 'Ref swap NEAR→USDT', tx: 'AjSDQJSUrrkBmuAYVjMkgm6J7ZwJuqvMNQXua1vHe4Qo', network: 'testnet' },
   { label: 'Failed: receiver not registered', tx: 'AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM', network: 'testnet' },
   { label: 'Failed: zero amount', tx: '5ToKYFoveoWPjWAKSqDgFmH2YTFgH2X2JLQbmJcTnF8P', network: 'testnet' },

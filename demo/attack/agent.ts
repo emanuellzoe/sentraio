@@ -2,7 +2,7 @@
 // the invoice, which is exactly what prompt injection exploits.
 // Real LLM when LLM_API_KEY is set (OpenAI-compatible, default NEAR AI Cloud);
 // otherwise a mock that obeys the last payment instruction it reads.
-import { payTool } from '@countersign/guard';
+import { payTool } from '@sentraio/guard';
 
 export interface PayCall {
   receiver_id: string;

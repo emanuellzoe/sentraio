@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Operator } from './operator';
 
-export const metadata: Metadata = { title: 'Operator — Countersign' };
+export const metadata: Metadata = { title: 'Operator — Sentraio' };
 
 export default function OperatorPage() {
   return (

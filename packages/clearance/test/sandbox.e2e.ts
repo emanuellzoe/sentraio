@@ -9,7 +9,7 @@ import { approve, base58Encode, guardianKey, useCurrentSandbox } from '../src/in
 import type { Decision } from '../src/index.ts';
 import { Simulator } from '../src/simulate.ts';
 
-const WASM = new URL('../../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../../contracts/target/near/sentraio_vault/sentraio_vault.wasm', import.meta.url).pathname;
 const N = (near: string) => BigInt(nw.parseNEAR(near));
 
 test('Clearance approval is accepted by the vault contract exactly once', { timeout: 300_000 }, async () => {

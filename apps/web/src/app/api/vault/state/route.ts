@@ -1,4 +1,4 @@
-import { formatAmount, viewAccount } from '@countersign/core';
+import { formatAmount, viewAccount } from '@sentraio/core';
 import { chain, isConfigured } from '@/lib/config';
 import { agentSimulatorEnabled, view } from '@/lib/server';
 

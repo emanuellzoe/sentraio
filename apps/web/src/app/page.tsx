@@ -49,8 +49,8 @@ const STEPS = [
 
 const ACTS = [
   { tries: 'Injected invoice, plain wallet key', verdict: 'failed', outcome: 'Attacker +5 NEAR.' },
-  { tries: 'Honest invoice, through Countersign', verdict: 'allow', outcome: 'Shop +2 NEAR, explained.' },
-  { tries: 'Same injected invoice, through Countersign', verdict: 'block', outcome: 'shop-payrnents ≈ shop-payments. Attacker +0.' },
+  { tries: 'Honest invoice, through Sentraio', verdict: 'allow', outcome: 'Shop +2 NEAR, explained.' },
+  { tries: 'Same injected invoice, through Sentraio', verdict: 'block', outcome: 'shop-payrnents ≈ shop-payments. Attacker +0.' },
   { tries: 'Compromised code calls the vault', verdict: 'block', outcome: 'Approval missing or forged. The key cannot move NEAR.' },
   { tries: 'First order from a new vendor', verdict: 'warn', outcome: 'Operator confirms, then it pays.' },
 ];
@@ -62,7 +62,7 @@ const STACK: { name: string; what: string; links: [string, string][] }[] = [
   { name: 'Function-call keys', what: 'The agent key: one contract, one method, gas-only allowance.', links: [['Docs', 'https://docs.near.org/protocol/access-keys']] },
   { name: 'NearBlocks API', what: 'Receiver age and activity signals.', links: [['API', 'https://api.nearblocks.io/api-docs']] },
   { name: 'FastNEAR RPC', what: 'Regular and archival nodes, so Tx X-Ray also reads old transactions.', links: [['Site', 'https://fastnear.com']] },
-  { name: 'Agent API', what: 'Spending policy for agents. Countersign covers what it does not: counterparties, simulation, native methods.', links: [['Docs', 'https://docs.agentsonintents.com']] },
+  { name: 'Agent API', what: 'Spending policy for agents. Sentraio covers what it does not: counterparties, simulation, native methods.', links: [['Docs', 'https://docs.agentsonintents.com']] },
   { name: 'NEAR AI Cloud', what: 'Optional real LLM for the attack demo (OpenAI-compatible).', links: [['Docs', 'https://docs.near.ai']] },
 ];
 
@@ -74,7 +74,7 @@ const LIMITS = [
 ];
 
 const FAQ: [string, string][] = [
-  ['Isn’t this what NEAR’s Agent API already does?', 'The Agent API caps spending and can freeze an agent, but its policy does not protect native methods and it does not ask who is being paid. Countersign adds the counterparty check, simulation, a vault that covers native transfers, and the failure explainer. Use both.'],
+  ['Isn’t this what NEAR’s Agent API already does?', 'The Agent API caps spending and can freeze an agent, but its policy does not protect native methods and it does not ask who is being paid. Sentraio adds the counterparty check, simulation, a vault that covers native transfers, and the failure explainer. Use both.'],
   ['What if a prompt injection takes over the agent?', 'The agent can still only ask. Clearance blocks look-alike or reported receivers, and the vault refuses any call without a valid, unused Clearance signature. The agent’s key cannot transfer NEAR or add keys.'],
   ['Can the agent approve its own warning?', 'No. The agent token can only request checks; approving a warn needs the separate operator token, and the decision records who made it.'],
   ['What if the guardian (Clearance) key leaks?', 'An attacker could sign approvals, but only inside the owner’s mandate: limits and receiver rules are enforced by the contract. The owner rotates the guardian or hits Panic.'],
@@ -123,15 +123,15 @@ export default function Home() {
       <section>
         <div className="grid items-center gap-10 pb-12 md:grid-cols-[1.35fr_1fr]">
           <div className="space-y-6">
-            <p className="font-pixel text-xs">[ COUNTERSIGN / AGENT SECURITY ON NEAR ]</p>
+            <p className="font-pixel text-xs">[ SENTRAIO / AGENT SECURITY ON NEAR ]</p>
             <h1 className="text-4xl leading-tight md:text-5xl">
-              AI agents can hold money now. <b className="font-pixel text-[0.85em] leading-snug">Countersign decides what they may do with it.</b>
+              AI agents can hold money now. <b className="font-pixel text-[0.85em] leading-snug">Sentraio decides what they may do with it.</b>
             </h1>
             <RotatingLine items={['checks who gets paid', 'simulates the payment', 'gates the vault on-chain', 'asks a human when unsure', 'explains every failure']} />
             <p className="max-w-xl">
               A prompt-injected agent will try to pay the wrong account.
               <br />
-              <b>With Countersign, the money stays where it is.</b>
+              <b>With Sentraio, the money stays where it is.</b>
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#layers" className="px-btn">Explore the layers</a>
@@ -279,7 +279,7 @@ export default function Home() {
           <pre className="overflow-x-auto text-sm leading-relaxed">{`pnpm install
 pnpm demo:attack                  # the five situations above
 pnpm dev:chain                    # sandbox for the dashboard
-pnpm --filter @countersign/web dev  # http://localhost:3000`}</pre>
+pnpm --filter @sentraio/web dev  # http://localhost:3000`}</pre>
         </div>
       </section>
 

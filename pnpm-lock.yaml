@@ -10,18 +10,18 @@ importers:
 
   apps/web:
     dependencies:
-      '@countersign/clearance':
-        specifier: workspace:*
-        version: link:../../packages/clearance
-      '@countersign/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@countersign/guard':
-        specifier: workspace:*
-        version: link:../../packages/guard
       '@hot-labs/near-connect':
         specifier: ^0.12.0
         version: 0.12.0
+      '@sentraio/clearance':
+        specifier: workspace:*
+        version: link:../../packages/clearance
+      '@sentraio/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@sentraio/guard':
+        specifier: workspace:*
+        version: link:../../packages/guard
       near-api-js:
         specifier: 7.4.0
         version: 7.4.0
@@ -56,13 +56,13 @@ importers:
 
   demo/attack:
     dependencies:
-      '@countersign/clearance':
+      '@sentraio/clearance':
         specifier: workspace:*
         version: link:../../packages/clearance
-      '@countersign/core':
+      '@sentraio/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@countersign/guard':
+      '@sentraio/guard':
         specifier: workspace:*
         version: link:../../packages/guard
       near-api-js:
@@ -81,7 +81,7 @@ importers:
 
   packages/clearance:
     dependencies:
-      '@countersign/core':
+      '@sentraio/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -107,10 +107,10 @@ importers:
 
   packages/guard:
     dependencies:
-      '@countersign/clearance':
+      '@sentraio/clearance':
         specifier: workspace:*
         version: link:../clearance
-      '@countersign/core':
+      '@sentraio/core':
         specifier: workspace:*
         version: link:../core
       near-api-js:

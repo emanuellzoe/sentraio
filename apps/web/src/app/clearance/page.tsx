@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Playground } from './playground';
 
-export const metadata: Metadata = { title: 'Clearance — Countersign' };
+export const metadata: Metadata = { title: 'Clearance — Sentraio' };
 
 export default function ClearancePage() {
   return (

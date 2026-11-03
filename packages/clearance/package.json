@@ -1,8 +1,8 @@
 {
-  "name": "@countersign/clearance",
+  "name": "@sentraio/clearance",
   "version": "0.1.0",
   "private": true,
-  "description": "Counterparty checks, sandbox simulation and approval signing for agent actions on a Countersign vault.",
+  "description": "Counterparty checks, sandbox simulation and approval signing for agent actions on a Sentraio vault.",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
@@ -14,7 +14,7 @@
     "test:sandbox": "node --test --test-concurrency=1 test/sandbox.e2e.ts"
   },
   "dependencies": {
-    "@countersign/core": "workspace:*"
+    "@sentraio/core": "workspace:*"
   },
   "optionalDependencies": {
     "near-workspaces": "5.0.0"

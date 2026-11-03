@@ -184,7 +184,7 @@
         "executor_id": "dev-22289-29632.test.near",
         "gas_burnt": 2672670211796,
         "logs": [
-          "EVENT_JSON:{\"standard\":\"countersign\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"near_transfer\",\"asset\":\"NEAR\",\"receiver_id\":\"ghost.test.near\",\"amount\":\"500000000000000000000000\",\"approved\":false}]}"
+          "EVENT_JSON:{\"standard\":\"sentraio\",\"version\":\"1.0.0\",\"event\":\"action_dispatched\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"near_transfer\",\"asset\":\"NEAR\",\"receiver_id\":\"ghost.test.near\",\"amount\":\"500000000000000000000000\",\"approved\":false}]}"
         ],
         "metadata": {
           "contracts": [
@@ -478,7 +478,7 @@
         "executor_id": "dev-22289-29632.test.near",
         "gas_burnt": 2007026816286,
         "logs": [
-          "EVENT_JSON:{\"standard\":\"countersign\",\"version\":\"1.0.0\",\"event\":\"action_failed\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"near_transfer\",\"asset\":\"NEAR\",\"amount\":\"500000000000000000000000\",\"refunded\":\"500000000000000000000000\"}]}"
+          "EVENT_JSON:{\"standard\":\"sentraio\",\"version\":\"1.0.0\",\"event\":\"action_failed\",\"data\":[{\"agent_id\":\"agent.owner.test.near\",\"kind\":\"near_transfer\",\"asset\":\"NEAR\",\"amount\":\"500000000000000000000000\",\"refunded\":\"500000000000000000000000\"}]}"
         ],
         "metadata": {
           "contracts": [

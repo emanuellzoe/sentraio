@@ -1,5 +1,5 @@
-import { verifyOperatorProof } from '@countersign/clearance';
-import type { CheckResponse, OperatorProof } from '@countersign/clearance';
+import { verifyOperatorProof } from '@sentraio/clearance';
+import type { CheckResponse, OperatorProof } from '@sentraio/clearance';
 import { chain, isLocalMode } from '@/lib/config';
 import { operator } from '@/lib/server';
 

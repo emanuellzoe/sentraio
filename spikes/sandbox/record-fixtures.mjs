@@ -4,7 +4,7 @@ import nw from 'near-workspaces';
 import { writeFileSync } from 'node:fs';
 const { Worker, parseNEAR } = nw;
 
-const WASM = new URL('../../contracts/target/near/countersign_vault/countersign_vault.wasm', import.meta.url).pathname;
+const WASM = new URL('../../contracts/target/near/sentraio_vault/sentraio_vault.wasm', import.meta.url).pathname;
 const OUT = new URL('../../packages/core/test/fixtures/', import.meta.url).pathname;
 
 const worker = await Worker.init();

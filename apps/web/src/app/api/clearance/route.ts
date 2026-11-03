@@ -1,6 +1,6 @@
 // Dry run of Clearance: shows every signal, signs nothing.
-import { runClearance } from '@countersign/clearance';
-import type { AgentAction } from '@countersign/clearance';
+import { runClearance } from '@sentraio/clearance';
+import type { AgentAction } from '@sentraio/clearance';
 import { chain, isLocalMode } from '@/lib/config';
 
 export async function POST(request: Request) {
