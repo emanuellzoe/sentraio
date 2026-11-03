@@ -1,6 +1,6 @@
 // The exact message the owner's wallet must sign (NEP-413) to approve or reject a warn.
 import { randomBytes } from 'node:crypto';
-import { OPERATOR_RECIPIENT, operatorMessage } from '@countersign/clearance';
+import { OPERATOR_RECIPIENT, operatorMessage } from '@sentraio/clearance';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

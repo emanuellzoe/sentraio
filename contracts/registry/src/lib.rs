@@ -1,4 +1,4 @@
-//! Countersign registry: a shared, evidence-backed blocklist that Clearance reads
+//! Sentraio registry: a shared, evidence-backed blocklist that Clearance reads
 //! as one counterparty signal.
 //!
 //! Anti-griefing rules: every report needs a deposit and an evidence hash; one
@@ -327,6 +327,6 @@ fn refund(r: &Report) {
 }
 
 fn emit(event: &str, data: Value) {
-    let payload = json!({ "standard": "countersign-registry", "version": "1.0.0", "event": event, "data": [data] });
+    let payload = json!({ "standard": "sentraio-registry", "version": "1.0.0", "event": event, "data": [data] });
     env::log_str(&format!("EVENT_JSON:{payload}"));
 }

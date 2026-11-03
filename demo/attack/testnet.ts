@@ -1,20 +1,20 @@
 // Runs the Clearance service against the testnet deployment and points the web app at it:
 //   pnpm testnet:clearance     (Ctrl-C to stop), then: pnpm web
-// Secrets come from ~/.countersign/testnet.json (guardian key, agent function-call key),
+// Secrets come from ~/.sentraio/testnet.json (guardian key, agent function-call key),
 // created at deploy time and never stored in the repository.
 import { randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { RPC_URLS, viewAccount } from '@countersign/core';
-import { JsonFileStore, startClearanceServer } from '@countersign/clearance';
+import { RPC_URLS, viewAccount } from '@sentraio/core';
+import { JsonFileStore, startClearanceServer } from '@sentraio/clearance';
 
 const DEPLOY = {
-  vaultId: process.env.VAULT_ID ?? 'vault.countersign.testnet',
-  registryId: process.env.REGISTRY_ID ?? 'registry.countersign.testnet',
-  agentId: process.env.AGENT_ID ?? 'agent.countersign.testnet',
-  knownAccounts: ['shop-payments.countersign.testnet'],
+  vaultId: process.env.VAULT_ID ?? 'vault.sentraio.testnet',
+  registryId: process.env.REGISTRY_ID ?? 'registry.sentraio.testnet',
+  agentId: process.env.AGENT_ID ?? 'agent.sentraio.testnet',
+  knownAccounts: ['shop-payments.sentraio.testnet'],
 };
-const secrets = JSON.parse(readFileSync(`${homedir()}/.countersign/testnet.json`, 'utf8')) as {
+const secrets = JSON.parse(readFileSync(`${homedir()}/.sentraio/testnet.json`, 'utf8')) as {
   guardianSecretKey: string;
   agentFcSecretKey: string;
 };
@@ -34,7 +34,7 @@ const server = await startClearanceServer({
   // the deployed code is the audited build: pin it so a redeploy is caught
   expectedVaultCodeHashes: [vault.code_hash],
   knownAccounts: DEPLOY.knownAccounts,
-  store: new JsonFileStore(`${homedir()}/.countersign/clearance-store.json`),
+  store: new JsonFileStore(`${homedir()}/.sentraio/clearance-store.json`),
 });
 
 const env = {

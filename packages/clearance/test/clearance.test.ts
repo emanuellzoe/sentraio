@@ -22,7 +22,7 @@ function chain(opts: { allowlist?: string[] | null; allowed?: boolean; registry?
     .account('registry.testnet', { code_hash: 'RegHash' })
     .view(VAULT, 'preview', () => ({ allowed: opts.allowed ?? true, reason: opts.allowed === false ? 'over_daily_limit' : null, requires_approval: true, nonce: 7, spent_today: '0' }))
     .view(VAULT, 'get_mandate', () => ({ allowed_receivers: opts.allowlist === undefined ? [SHOP] : opts.allowlist, frozen: false }))
-    .view(VAULT, 'get_approval_message', (a) => `countersign-approval:v1|msg-for|${a.agent_id}|${a.expires_at_ns}|${a.action.receiver_id}`)
+    .view(VAULT, 'get_approval_message', (a) => `sentraio-approval:v1|msg-for|${a.agent_id}|${a.expires_at_ns}|${a.action.receiver_id}`)
     .view('registry.testnet', 'get_statuses', (a) => a.account_ids.map((id: string) => [id, opts.registry?.[id] ?? 'clean']));
   return c;
 }
@@ -150,7 +150,7 @@ test('approve: block refuses, warn needs a human, signature verifies over the va
 
   const a = await approve(warned, { ...opts, humanConfirmedBy: 'owner.testnet' });
   assert.equal(a.expires_at_ns, String((1_000n + 60_000n) * 1_000_000n));
-  const msg = `countersign-approval:v1|msg-for|${AGENT}|${a.expires_at_ns}|fresh.testnet`;
+  const msg = `sentraio-approval:v1|msg-for|${AGENT}|${a.expires_at_ns}|fresh.testnet`;
   assert.ok(verify(null, Buffer.from(msg), kp.nodePublic, Buffer.from(a.signature, 'base64')));
   assert.ok(c.calls.includes(`${VAULT}.get_approval_message`), 'message comes from the vault, not re-encoded locally');
 });

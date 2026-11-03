@@ -8,7 +8,7 @@ const silkscreen = Silkscreen({ weight: ['400', '700'], subsets: ['latin'], vari
 const plexMono = IBM_Plex_Mono({ weight: ['400', '600'], subsets: ['latin'], variable: '--font-plex-mono' });
 
 export const metadata: Metadata = {
-  title: 'Countersign — a guard for AI agents that hold money on NEAR',
+  title: 'Sentraio — a guard for AI agents that hold money on NEAR',
   description: 'Counterparty checks, sandbox simulation and an approval-gated vault for AI agents on NEAR, plus Tx X-Ray to explain what happened.',
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4">
             <Link href="/" className="flex items-center gap-2 font-pixel text-2xl tracking-tight">
-              COUNTERSIGN<span className="cursor" />
+              SENTRAIO<span className="cursor" />
               <span className="badge badge-solid text-[10px]">AGNT-SEC</span>
             </Link>
             <nav className="flex flex-wrap items-center gap-1 font-pixel text-sm">
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <footer className="dither-25 border-t-2 border-ink">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-6">
             <p className="flex items-center gap-2 bg-paper px-2 font-pixel text-xs">
-              <span className="badge badge-solid">COUNTERSIGN</span> Rules on-chain. Reasons in plain words. Built on NEAR.
+              <span className="badge badge-solid">SENTRAIO</span> Rules on-chain. Reasons in plain words. Built on NEAR.
             </p>
             <a href="#main" className="bg-paper px-2 font-pixel text-xs underline decoration-2 underline-offset-2">Back to top ↑</a>
           </div>

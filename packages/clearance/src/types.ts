@@ -1,4 +1,4 @@
-import type { Network, TxReport } from '@countersign/core';
+import type { Network, TxReport } from '@sentraio/core';
 
 /** Mirrors the vault's `AgentAction` JSON. */
 export type AgentAction =

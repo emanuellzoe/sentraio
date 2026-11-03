@@ -31,7 +31,7 @@ test('top-level success can hide an inner failure: unregistered receiver -> part
   assert.match(r.failures[0].error.hint!, /storage_deposit\(\{"account_id":"ghost\.test\.near"\}\) on wrap\.testnet/);
   assert.equal(r.movements.length, 0, 'logs of the failed receipt must not count');
   assert.match(r.headline, /Funds were returned/);
-  assert.ok(r.events.some((e) => e.standard === 'countersign' && e.event === 'action_failed'));
+  assert.ok(r.events.some((e) => e.standard === 'sentraio' && e.event === 'action_failed'));
 });
 
 test('NEAR transfer to a missing account: explained, and the reverted transfer is not counted', () => {

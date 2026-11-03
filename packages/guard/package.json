@@ -1,5 +1,5 @@
 {
-  "name": "@countersign/guard",
+  "name": "@sentraio/guard",
   "version": "0.1.0",
   "private": true,
   "description": "Agent-side wrapper: every payment goes through Clearance; block refuses, warn waits for a human.",
@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@countersign/core": "workspace:*",
-    "@countersign/clearance": "workspace:*",
+    "@sentraio/core": "workspace:*",
+    "@sentraio/clearance": "workspace:*",
     "near-api-js": "7.4.0"
   },
   "devDependencies": {

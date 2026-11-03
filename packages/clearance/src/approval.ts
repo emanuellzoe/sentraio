@@ -1,6 +1,6 @@
 import { createPrivateKey, createPublicKey, sign } from 'node:crypto';
-import { viewFunction } from '@countersign/core';
-import type { ViewOptions } from '@countersign/core';
+import { viewFunction } from '@sentraio/core';
+import type { ViewOptions } from '@sentraio/core';
 import type { Decision } from './types.ts';
 
 const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';

@@ -1,8 +1,8 @@
 // NEP-413 signed messages (wallet "sign message"), verified server-side.
 // https://github.com/near/NEPs/blob/master/neps/nep-0413.md
 import { createHash, createPublicKey, verify } from 'node:crypto';
-import { RPC_URLS, RpcError, viewFunction } from '@countersign/core';
-import type { ViewOptions } from '@countersign/core';
+import { RPC_URLS, RpcError, viewFunction } from '@sentraio/core';
+import type { ViewOptions } from '@sentraio/core';
 import { base58Decode } from './approval.ts';
 
 const NEP413_TAG = 2 ** 31 + 413;
@@ -62,7 +62,7 @@ async function rpcViewAccessKey(accountId: string, publicKey: string, { network 
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     signal: AbortSignal.timeout(8_000),
-    body: JSON.stringify({ jsonrpc: '2.0', id: 'countersign', method: 'query', params: { request_type: 'view_access_key', finality: 'final', account_id: accountId, public_key: publicKey } }),
+    body: JSON.stringify({ jsonrpc: '2.0', id: 'sentraio', method: 'query', params: { request_type: 'view_access_key', finality: 'final', account_id: accountId, public_key: publicKey } }),
   });
   const body = (await res.json()) as { result?: { permission: unknown }; error?: { cause?: { name?: string }; message?: string } };
   if (body.error) throw new RpcError(body.error.cause?.name ?? 'RPC_ERROR', body.error.message ?? 'view_access_key failed');
@@ -77,8 +77,8 @@ export interface OperatorProof {
   at: number;
 }
 
-export const OPERATOR_RECIPIENT = 'countersign-operator';
-export const operatorMessage = (decision: string, checkId: string, at: number) => `Countersign operator: ${decision} check ${checkId} at ${at}`;
+export const OPERATOR_RECIPIENT = 'sentraio-operator';
+export const operatorMessage = (decision: string, checkId: string, at: number) => `Sentraio operator: ${decision} check ${checkId} at ${at}`;
 
 /**
  * Accepts an operator decision only if it is signed now, once, by a full-access key of the

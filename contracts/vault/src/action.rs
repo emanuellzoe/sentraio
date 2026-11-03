@@ -94,7 +94,7 @@ pub fn approval_message(
     action: &AgentAction,
 ) -> String {
     format!(
-        "countersign-approval:v1|{}",
+        "sentraio-approval:v1|{}",
         encode(&[
             vault.as_str(),
             agent.as_str(),

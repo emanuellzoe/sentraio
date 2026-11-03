@@ -30,7 +30,7 @@ export class MemoryStore implements Store {
   protected async persist() {}
 }
 
-/** Same as MemoryStore, persisted to a JSON file (e.g. `.countersign/clearance.json`). */
+/** Same as MemoryStore, persisted to a JSON file (e.g. `.sentraio/clearance.json`). */
 export class JsonFileStore extends MemoryStore {
   private loaded = false;
   private readonly path: string;

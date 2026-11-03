@@ -1,7 +1,7 @@
 // Server-only helpers (route handlers / server components). Holds secrets from the
 // environment; nothing here may be imported by a client component.
-import { viewFunction } from '@countersign/core';
-import type { CheckResponse } from '@countersign/clearance';
+import { viewFunction } from '@sentraio/core';
+import type { CheckResponse } from '@sentraio/clearance';
 import { Account, JsonRpcProvider } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import { chain, isLocalMode } from './config';

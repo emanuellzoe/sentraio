@@ -1,5 +1,5 @@
-import { EMPTY_CODE_HASH, viewAccount, viewFunction } from '@countersign/core';
-import type { ViewOptions } from '@countersign/core';
+import { EMPTY_CODE_HASH, viewAccount, viewFunction } from '@sentraio/core';
+import type { ViewOptions } from '@sentraio/core';
 import { findLookalike } from './lookalike.ts';
 import type { Level, ClearanceConfig, ClearanceRequest, Signal, Store } from './types.ts';
 
@@ -103,7 +103,7 @@ export async function receiverReputation(ctx: Ctx, receiverId: string): Promise<
   const base = ctx.cfg.nearblocksUrl ?? NEARBLOCKS[ctx.view.network ?? 'testnet'];
   const get = async (path: string) => {
     const res = await (ctx.view.fetchImpl ?? fetch)(`${base}/v1/account/${receiverId}${path}`, {
-      headers: { 'user-agent': 'countersign-clearance' },
+      headers: { 'user-agent': 'sentraio-clearance' },
       signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) throw new Error(`nearblocks HTTP ${res.status}`);

@@ -4,15 +4,15 @@
 // Clearance service, seeds some activity, and writes apps/web/.env.local.
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { Guard } from '@countersign/guard';
-import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@countersign/clearance';
+import { Guard } from '@sentraio/guard';
+import { base58Encode, MemoryStore, startClearanceServer, useCurrentSandbox } from '@sentraio/clearance';
 import { Account, JsonRpcProvider, KeyPair, actions } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 import nw from 'near-workspaces';
 
 const here = (p: string) => new URL(p, import.meta.url).pathname;
-const VAULT_WASM = here('../../contracts/target/near/countersign_vault/countersign_vault.wasm');
-const REGISTRY_WASM = here('../../contracts/target/near/countersign_registry/countersign_registry.wasm');
+const VAULT_WASM = here('../../contracts/target/near/sentraio_vault/sentraio_vault.wasm');
+const REGISTRY_WASM = here('../../contracts/target/near/sentraio_registry/sentraio_registry.wasm');
 const CLEARANCE_PORT = Number(process.env.CLEARANCE_PORT ?? 4010);
 useCurrentSandbox();
 if (!existsSync(VAULT_WASM) || !existsSync(REGISTRY_WASM)) {
@@ -105,7 +105,7 @@ const env = {
   DEV_AGENT_KEY: agentKey.toString(),
 };
 writeFileSync(here('../../apps/web/.env.local'), `# written by pnpm dev:chain — local sandbox only, regenerated on every start\n${Object.entries(env).map(([k, v]) => `${k}=${v}`).join('\n')}\n`);
-console.log(`\nready. clearance ${server.url}, vault ${vault.accountId}\nwrote apps/web/.env.local — start the web app with: pnpm --filter @countersign/web dev\nCtrl-C to stop.`);
+console.log(`\nready. clearance ${server.url}, vault ${vault.accountId}\nwrote apps/web/.env.local — start the web app with: pnpm --filter @sentraio/web dev\nCtrl-C to stop.`);
 
 const stop = async () => {
   await server.close();

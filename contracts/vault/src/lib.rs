@@ -1,4 +1,4 @@
-//! Countersign vault: holds funds for AI agents and only moves them inside an
+//! Sentraio vault: holds funds for AI agents and only moves them inside an
 //! owner-set mandate, optionally gated by a Clearance approval signature.
 //!
 //! The agent signs `execute` with a function-call key scoped to this contract,

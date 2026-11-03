@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Vault } from './vault';
 
-export const metadata: Metadata = { title: 'Vault — Countersign' };
+export const metadata: Metadata = { title: 'Vault — Sentraio' };
 
 export default function VaultPage() {
   return (

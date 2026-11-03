@@ -1,5 +1,5 @@
-import { analyzeTx, fetchFtDecimals, fetchTx, formatAmount, RpcError } from '@countersign/core';
-import type { Network, ReceiptNode } from '@countersign/core';
+import { analyzeTx, fetchFtDecimals, fetchTx, formatAmount, RpcError } from '@sentraio/core';
+import type { Network, ReceiptNode } from '@sentraio/core';
 import { chain, isLocalMode } from '@/lib/config';
 
 const HASH = /^[1-9A-HJ-NP-Za-km-z]{43,44}$/;

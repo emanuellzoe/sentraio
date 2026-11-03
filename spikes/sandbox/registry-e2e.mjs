@@ -3,7 +3,7 @@
 import nw from 'near-workspaces';
 const { Worker, parseNEAR } = nw;
 
-const WASM = new URL('../../contracts/target/near/countersign_registry/countersign_registry.wasm', import.meta.url).pathname;
+const WASM = new URL('../../contracts/target/near/sentraio_registry/sentraio_registry.wasm', import.meta.url).pathname;
 const check = (label, ok, extra = '') => console.log(`${ok ? 'PASS' : 'FAIL'}  ${label} ${extra}`);
 const HASH = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08';
 const DEPOSIT = parseNEAR('0.1');

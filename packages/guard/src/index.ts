@@ -3,9 +3,9 @@
 //   refused     -> never signed
 //   needs_human -> wait for the operator (the agent cannot answer its own warn)
 //   approved    -> execute(action, approval) on the vault, then explain the outcome
-import { analyzeTx, fetchTx } from '@countersign/core';
-import type { Network, TxReport } from '@countersign/core';
-import type { AgentAction, CheckResponse } from '@countersign/clearance';
+import { analyzeTx, fetchTx } from '@sentraio/core';
+import type { Network, TxReport } from '@sentraio/core';
+import type { AgentAction, CheckResponse } from '@sentraio/clearance';
 import { Account, actions, JsonRpcProvider } from 'near-api-js';
 import type { KeyPairString } from 'near-api-js';
 
@@ -108,7 +108,7 @@ export const payTool = {
   type: 'function',
   function: {
     name: 'pay',
-    description: 'Pay an invoice from the agent vault. Every payment is checked by Countersign Clearance; blocked payments are refused.',
+    description: 'Pay an invoice from the agent vault. Every payment is checked by Sentraio Clearance; blocked payments are refused.',
     parameters: {
       type: 'object',
       properties: {
