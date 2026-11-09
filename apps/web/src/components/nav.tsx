@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Glyph } from './icons';
 
 const NAV = [
   { href: '/xray', label: 'Tx X-Ray' },
@@ -32,19 +33,43 @@ export function NavLinks() {
   );
 }
 
-/** Rounded-square app icon with the shield mark. */
+/** Shield mark, icon only: no tile, no gradient. */
 export function AppIcon({ size = 30 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden>
-      <defs>
-        <linearGradient id="app-icon" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--blue)" />
-          <stop offset="1" stopColor="var(--indigo)" />
-        </linearGradient>
-      </defs>
-      <rect width="64" height="64" rx="15" fill="url(#app-icon)" />
-      <path d="M32 12c7 3.5 13 5 18 5v15c0 11-8 18.5-18 22-10-3.5-18-11-18-22V17c5 0 11-1.5 18-5z" fill="#fff" opacity="0.95" />
-      <path d="M24 33l6 6 11-12" fill="none" stroke="var(--blue)" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3c2.6 1.4 5 2 7 2v6.5c0 4.6-3 7.6-7 9.5-4-1.9-7-4.9-7-9.5V5c2 0 4.4-.6 7-2z" />
+      <path d="M9 12l2.2 2.2L15.5 10" />
     </svg>
+  );
+}
+
+const TABS = [
+  { href: '/xray', label: 'Tx X-Ray', icon: 'xray' },
+  { href: '/clearance', label: 'Clearance', icon: 'magnifier' },
+  { href: '/vault', label: 'Vault', icon: 'lock' },
+  { href: '/operator', label: 'Operator', icon: 'operator' },
+] as const;
+
+/** Floating glass tab bar at the bottom: icons only, the current page is the one at full strength. */
+export function BottomBar() {
+  const path = usePathname();
+  return (
+    <nav aria-label="Sections" className="ios-glass fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full p-1.5">
+      {TABS.map((t) => {
+        const active = path === t.href;
+        return (
+          <Link
+            key={t.href}
+            href={t.href}
+            aria-label={t.label}
+            title={t.label}
+            aria-current={active ? 'page' : undefined}
+            className={`flex h-11 w-14 items-center justify-center rounded-full transition-colors ${active ? 'bg-fill text-label' : 'text-label2 hover:text-label'}`}
+          >
+            <Glyph name={t.icon} className="h-6 w-6" />
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

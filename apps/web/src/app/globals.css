@@ -18,7 +18,7 @@
   --orange: #ff9500;
   --red: #ff3b30;
   --indigo: #5856d6;
-  --nav: rgba(249, 249, 249, 0.78);
+  --nav: rgba(255, 255, 255, 0.5);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 @media (prefers-color-scheme: dark) {
@@ -37,7 +37,7 @@
     --orange: #ff9f0a;
     --red: #ff453a;
     --indigo: #5e5ce6;
-    --nav: rgba(22, 22, 24, 0.72);
+    --nav: rgba(30, 30, 32, 0.45);
     --shadow: none;
   }
 }
@@ -75,11 +75,18 @@ body {
 }
 
 /* ---- surfaces ---- */
-.ios-nav {
+.ios-nav,
+.ios-glass {
   background: var(--nav);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+}
+.ios-nav {
   border-bottom: 0.5px solid var(--sep);
+}
+.ios-glass {
+  border: 0.5px solid var(--sep);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 .ios-card {
   background: var(--card);
