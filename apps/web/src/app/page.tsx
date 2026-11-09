@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Glyph } from '@/components/icons';
 import { RotatingLine } from '@/components/landing';
 import { ShieldHero } from '@/components/shield-hero';
 import { Badge } from '@/components/verdict';
@@ -24,17 +25,17 @@ const STATS = [
 
 const LAYERS = [
   {
-    icon: 'magnifier', tint: 'from-blue to-indigo', name: 'Clearance', tagline: 'Who is being paid, and what will really happen?',
+    icon: 'magnifier', name: 'Clearance', tagline: 'Who is being paid, and what will really happen?',
     body: 'Checks the receiver and the token before anything is signed, then simulates the payment on real contract code with real balances in a sandbox.',
     chips: ['Look-alike names', 'Registry', 'Code changes', 'Simulation'], href: '/clearance', cta: 'Try Clearance',
   },
   {
-    icon: 'lock', tint: 'from-green to-blue', name: 'Vault', tagline: 'The mandate the agent cannot step outside of.',
+    icon: 'lock', name: 'Vault', tagline: 'The mandate the agent cannot step outside of.',
     body: 'On-chain limits per transaction and per day, single-use Clearance signatures, strikes that auto-freeze, and a constant-gas panic switch. Native NEAR included.',
     chips: ['Limits', 'Approvals', 'Auto-freeze', 'Panic'], href: '/vault', cta: 'Open the vault',
   },
   {
-    icon: 'xray', tint: 'from-orange to-red', name: 'Tx X-Ray', tagline: 'Success on top, failure inside? It tells you.',
+    icon: 'xray', name: 'Tx X-Ray', tagline: 'Success on top, failure inside? It tells you.',
     body: 'Reads every receipt of any NEAR transaction, explains each failure with a fix, and shows where the funds actually are now.',
     chips: ['Receipt tree', 'Fix hints', 'Funds now', 'Testnet + mainnet'], href: '/xray', cta: 'Explain a transaction',
   },
@@ -91,17 +92,6 @@ function SectionHead({ eyebrow, title, sub, id }: { eyebrow: string; title: stri
       <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>
       {sub && <p className="max-w-2xl text-lg text-label2">{sub}</p>}
     </header>
-  );
-}
-
-function Glyph({ name }: { name: (typeof LAYERS)[number]['icon'] }) {
-  const common = { fill: 'none', stroke: '#fff', strokeWidth: 2.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  return (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
-      {name === 'magnifier' && (<><circle cx="10.5" cy="10.5" r="6" {...common} /><path d="M15 15l5 5" {...common} /></>)}
-      {name === 'lock' && (<><rect x="5" y="11" width="14" height="10" rx="2.5" {...common} /><path d="M8 11V8a4 4 0 018 0v3" {...common} /></>)}
-      {name === 'xray' && (<><path d="M4 12h3l2-5 4 10 2-5h5" {...common} /></>)}
-    </svg>
   );
 }
 
@@ -169,7 +159,7 @@ export default function Home() {
         <div className="grid gap-5 md:grid-cols-3">
           {LAYERS.map((l) => (
             <article key={l.name} className="ios-card flex flex-col gap-4 p-6">
-              <span className={`flex h-12 w-12 items-center justify-center rounded-[14px] bg-linear-to-b ${l.tint} shadow-sm`}><Glyph name={l.icon} /></span>
+              <Glyph name={l.icon} className="h-9 w-9 text-label" />
               <div className="space-y-1">
                 <h3 className="font-display text-2xl font-bold">{l.name}</h3>
                 <p className="font-medium text-label2">{l.tagline}</p>
