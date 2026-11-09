@@ -78,15 +78,14 @@ body {
 .ios-nav,
 .ios-glass {
   background: var(--nav);
-  backdrop-filter: saturate(180%) blur(28px);
   -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
 }
 .ios-nav {
   border-bottom: 0.5px solid var(--sep);
 }
 .ios-glass {
-  border: 0.5px solid var(--sep);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 0 solid var(--sep);
 }
 .ios-card {
   background: var(--card);
