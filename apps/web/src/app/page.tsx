@@ -278,7 +278,7 @@ pnpm --filter @sentraio/web dev  # http://localhost:3000`}</pre>
       </section>
 
       {/* floating demo bar */}
-      <div className="pointer-events-none sticky bottom-5 z-20 flex justify-center">
+      <div className="pointer-events-none sticky bottom-5 z-20 mb-28 flex justify-center">
         <div className="ios-nav pointer-events-auto flex items-center gap-4 rounded-full border-[0.5px] border-sep py-2 pr-2 pl-5 shadow-lg">
           <p className="text-sm font-medium">Play the agent and watch what gets through</p>
           <Link href="/vault" className="ios-btn py-1.5 text-sm">Try it</Link>
