@@ -41,7 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </div>
           </header>
           <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-10">{children}</main>
-          <footer className="ios-glass sticky bottom-0 z-30 border-t-[0.5px] border-sep">
+          <footer className="ios-glass border-t-[0.5px] border-sep">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-3 text-sm text-label2">
               <p className="flex items-center gap-2">
                 Sentraio · Rules on-chain. Reasons in plain words. Built on NEAR.
