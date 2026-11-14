@@ -1,7 +1,5 @@
 import Link from 'next/link';
-import { Glyph } from '@/components/icons';
-import { RotatingLine } from '@/components/landing';
-import { ShieldHero } from '@/components/shield-hero';
+import { HandsField } from '@/components/hands-field';
 import { Badge } from '@/components/verdict';
 
 // ---------------------------------------------------------------- content
@@ -25,17 +23,17 @@ const STATS = [
 
 const LAYERS = [
   {
-    icon: 'magnifier', name: 'Clearance', tagline: 'Who is being paid, and what will really happen?',
+    name: 'Clearance', tagline: 'Who is being paid, and what will really happen?',
     body: 'Checks the receiver and the token before anything is signed, then simulates the payment on real contract code with real balances in a sandbox.',
     chips: ['Look-alike names', 'Registry', 'Code changes', 'Simulation'], href: '/clearance', cta: 'Try Clearance',
   },
   {
-    icon: 'lock', name: 'Vault', tagline: 'The mandate the agent cannot step outside of.',
+    name: 'Vault', tagline: 'The mandate the agent cannot step outside of.',
     body: 'On-chain limits per transaction and per day, single-use Clearance signatures, strikes that auto-freeze, and a constant-gas panic switch. Native NEAR included.',
     chips: ['Limits', 'Approvals', 'Auto-freeze', 'Panic'], href: '/vault', cta: 'Open the vault',
   },
   {
-    icon: 'xray', name: 'Tx X-Ray', tagline: 'Success on top, failure inside? It tells you.',
+    name: 'Tx X-Ray', tagline: 'Success on top, failure inside? It tells you.',
     body: 'Reads every receipt of any NEAR transaction, explains each failure with a fix, and shows where the funds actually are now.',
     chips: ['Receipt tree', 'Fix hints', 'Funds now', 'Testnet + mainnet'], href: '/xray', cta: 'Explain a transaction',
   },
@@ -46,6 +44,12 @@ const STEPS = [
   { title: 'Clearance checks', body: 'Nine signals, worst wins. Allow signs, warn waits for the owner, block refuses.' },
   { title: 'Vault enforces', body: 'Limits, receiver rules and a valid, unused signature, or nothing moves.' },
   { title: 'Tx X-Ray explains', body: 'Every outcome comes back as a plain-language report with the funds trail.' },
+];
+
+const OUTCOMES: [string, string, string][] = [
+  ['block', 'Block', 'Clearance never signs; the guard refuses.'],
+  ['warn', 'Warn', 'The owner decides with a wallet signature; the agent cannot approve itself.'],
+  ['block', 'Bypass', 'The vault rejects calls without a valid, unused signature.'],
 ];
 
 const ACTS = [
@@ -85,205 +89,173 @@ const FAQ: [string, string][] = [
 
 // ---------------------------------------------------------------- pieces
 
-function SectionHead({ eyebrow, title, sub, id }: { eyebrow: string; title: string; sub?: string; id: string }) {
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+
+/** Editorial section: a 1px rule, a monospace index on the left, the title and content on the right. */
+function Section({ n, label, title, sub, id, children }: { n: string; label: string; title: string; sub?: string; id: string; children: React.ReactNode }) {
   return (
-    <header id={id} className="scroll-mt-24 space-y-2">
-      <p className="text-sm font-semibold text-blue">{eyebrow}</p>
-      <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>
-      {sub && <p className="max-w-2xl text-lg text-label2">{sub}</p>}
-    </header>
+    <section id={id} className="scroll-mt-24 border-t border-sep pt-6">
+      <div className="grid gap-6 md:grid-cols-12 md:gap-10">
+        <p className="mono-label md:col-span-3">{n} — {label}</p>
+        <div className="space-y-10 md:col-span-9">
+          <header className="space-y-3">
+            <h2 className="max-w-3xl text-3xl font-medium leading-[1.08] tracking-[-0.03em] md:text-[2.5rem]">{title}</h2>
+            {sub && <p className="max-w-2xl text-lg text-label2">{sub}</p>}
+          </header>
+          {children}
+        </div>
+      </div>
+    </section>
   );
 }
+
+const Rows = ({ children }: { children: React.ReactNode }) => <ul className="divide-y divide-sep border-y border-sep">{children}</ul>;
 
 // ---------------------------------------------------------------- page
 
 export default function Home() {
   return (
-    <div className="space-y-24 pb-24">
-      {/* hero */}
-      <section className="grid items-center gap-10 pt-6 md:grid-cols-[1.25fr_1fr]">
-        <div className="fade-in space-y-6">
-          <span className="pill pill-blue">Agent security on NEAR</span>
-          <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-            AI agents can hold money now.
-            <span className="block text-label2">Sentraio decides what they may do with it.</span>
+    <div className="space-y-24 pb-28">
+      {/* hero: full viewport, copy centred, two hands drawn live behind it */}
+      <section className="relative left-1/2 -mx-[50vw] -mt-10 w-screen min-h-[calc(100svh-65px)] overflow-hidden">
+        <HandsField className="pointer-events-none absolute inset-0 z-0 block" />
+        <div className="fade-in relative z-10 mx-auto flex max-w-3xl flex-col items-center px-5 pt-[11vh] text-center">
+          <p className="mono-label">Agent security on NEAR</p>
+          <h1 className="mt-6 text-[clamp(2.4rem,4.6vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.035em]">
+            <span className="block text-label2">AI agents can hold money now.</span>
+            Sentraio decides what they may do with it.
           </h1>
-          <RotatingLine items={['checks who gets paid', 'simulates the payment', 'gates the vault on-chain', 'asks the owner when unsure', 'explains every failure']} />
-          <p className="max-w-xl text-lg text-label2">
-            A prompt-injected agent will try to pay the wrong account. <span className="font-semibold text-label">With Sentraio, the money stays where it is.</span>
+          <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-label2">
+            A prompt-injected agent will try to pay the wrong account. With Sentraio, the money stays where it is.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/vault" className="ios-btn px-5 py-3 text-base">Try the attack</Link>
-            <a href="#layers" className="ios-btn ios-btn-tinted px-5 py-3 text-base">How it works</a>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/vault" className="ios-btn px-6">Try the attack</Link>
+            <a href="#layers" className="ios-btn ios-btn-tinted px-6">How it works</a>
           </div>
-        </div>
-        <div className="ios-card fade-in p-6">
-          <ShieldHero className="h-auto w-full" />
-          <p className="pt-2 text-center text-sm text-label2">Payments in, nothing unapproved through.</p>
         </div>
       </section>
 
-      <div className="-mt-12 flex flex-wrap justify-center gap-2">
-        {CHIPS.map((c) => <span key={c} className="pill pill-gray text-sm">{c}</span>)}
-      </div>
+      <p className="mono-label -mt-12 border-y border-sep py-4 text-center">{CHIPS.join('  ·  ')}</p>
 
-      {/* at a glance */}
-      <section className="space-y-8">
-        <SectionHead id="glance" eyebrow="At a glance" title="Cheap to run, hard to fool." sub="Measured in the sandbox, not estimated: every number comes from the test suite or a worst-case run." />
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <Section n="01" label="At a glance" id="glance" title="Cheap to run, hard to fool." sub="Measured in the sandbox, not estimated: every number comes from the test suite or a worst-case run.">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
           <div>
             <p className="section-header">Gas per action · 0.0001 NEAR per Tgas</p>
-            <div className="ios-group">
+            <Rows>
               {GLANCE.map((g) => (
-                <div key={g.action} className="ios-row justify-between">
+                <li key={g.action} className="flex items-baseline justify-between gap-6 py-3">
                   <span>{g.action}</span>
-                  <span className="text-right text-sm text-label2">{g.gas}<br />{g.cost}</span>
-                </div>
+                  <span className="shrink-0 font-mono text-sm text-label2">{g.gas} · {g.cost}</span>
+                </li>
               ))}
-            </div>
+            </Rows>
           </div>
-          <div className="grid grid-cols-2 gap-4 self-end">
+          <div className="grid grid-cols-2 gap-x-6 self-end">
             {STATS.map((s) => (
-              <div key={s.label} className="ios-card p-5">
-                <p className="font-display text-4xl font-bold tracking-tight">{s.n}</p>
-                <p className="mt-1 text-sm text-label2">{s.label}</p>
+              <div key={s.label} className="border-t border-sep py-4">
+                <p className="text-5xl font-medium tracking-[-0.04em]">{s.n}</p>
+                <p className="mt-2 text-sm text-label2">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* layers */}
-      <section className="space-y-8">
-        <SectionHead id="layers" eyebrow="Three layers" title="Check. Enforce. Explain." sub="Each layer works on its own; together the agent can only ask, never take." />
-        <div className="grid gap-5 md:grid-cols-3">
-          {LAYERS.map((l) => (
-            <article key={l.name} className="ios-card flex flex-col gap-4 p-6">
-              <Glyph name={l.icon} className="h-9 w-9 text-label" />
-              <div className="space-y-1">
-                <h3 className="font-display text-2xl font-bold">{l.name}</h3>
-                <p className="font-medium text-label2">{l.tagline}</p>
-              </div>
+      <Section n="02" label="Three layers" id="layers" title="Check. Enforce. Explain." sub="Each layer works on its own; together the agent can only ask, never take.">
+        <div className="grid gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-sep">
+          {LAYERS.map((l, i) => (
+            <article key={l.name} className="flex flex-col gap-4 md:px-6 md:first:pl-0 md:last:pr-0">
+              <p className="mono-label">{pad(i)}</p>
+              <h3 className="text-2xl font-medium tracking-[-0.02em]">{l.name}</h3>
+              <p>{l.tagline}</p>
               <p className="flex-1 text-sm text-label2">{l.body}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {l.chips.map((c) => <span key={c} className="pill pill-gray">{c}</span>)}
-              </div>
-              <Link href={l.href} className="ios-link font-semibold">{l.cta} ›</Link>
+              <p className="font-mono text-xs text-label2">{l.chips.join(' / ')}</p>
+              <Link href={l.href} className="ios-link">{l.cta} →</Link>
             </article>
           ))}
         </div>
-      </section>
+      </Section>
 
-      {/* flow */}
-      <section className="space-y-8">
-        <SectionHead id="flow" eyebrow="How a payment flows" title="Four steps, one signature." />
-        <ol className="grid gap-5 md:grid-cols-4">
+      <Section n="03" label="How a payment flows" id="flow" title="Four steps, one signature.">
+        <ol className="grid gap-8 md:grid-cols-4 md:gap-0 md:divide-x md:divide-sep">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="ios-card space-y-2 p-5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue text-sm font-bold text-white">{i + 1}</span>
-              <h3 className="font-semibold">{s.title}</h3>
+            <li key={s.title} className="space-y-2 md:px-6 md:first:pl-0 md:last:pr-0">
+              <p className="mono-label">{pad(i)}</p>
+              <h3 className="font-medium">{s.title}</h3>
               <p className="text-sm text-label2">{s.body}</p>
             </li>
           ))}
         </ol>
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            ['block', 'Block', 'Clearance never signs; the guard refuses.'],
-            ['warn', 'Warn', 'The owner decides with a wallet signature; the agent cannot approve itself.'],
-            ['block', 'Bypass', 'The vault rejects calls without a valid, unused signature.'],
-          ].map(([v, t, d]) => (
-            <div key={t} className="ios-card flex items-start gap-3 p-5">
+        <Rows>
+          {OUTCOMES.map(([v, t, d]) => (
+            <li key={t} className="flex items-start gap-4 py-3">
               <Badge value={v} />
-              <p className="text-sm"><span className="font-semibold">{t}.</span> <span className="text-label2">{d}</span></p>
-            </div>
+              <p className="text-sm"><span className="font-medium">{t}.</span> <span className="text-label2">{d}</span></p>
+            </li>
           ))}
-        </div>
-      </section>
+        </Rows>
+      </Section>
 
-      {/* attack */}
-      <section className="space-y-8">
-        <SectionHead id="attack" eyebrow="The attack, replayed" title="One injected invoice, five situations." sub="Run it yourself with pnpm demo:attack: local sandbox, no keys, no funds." />
-        <div className="ios-group">
+      <Section n="04" label="The attack, replayed" id="attack" title="One injected invoice, five situations." sub="Run it yourself with pnpm demo:attack: local sandbox, no keys, no funds.">
+        <Rows>
           {ACTS.map((a, i) => (
-            <div key={a.tries} className="ios-row flex-wrap">
-              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-fill text-sm font-semibold text-label2">{i + 1}</span>
+            <li key={a.tries} className="flex flex-wrap items-center gap-x-6 gap-y-2 py-3">
+              <span className="mono-label w-6">{pad(i)}</span>
               <span className="min-w-[14rem] flex-1 font-medium">{a.tries}</span>
               <span className="flex-1 text-sm text-label2">{a.outcome}</span>
               <Badge value={a.verdict} />
-            </div>
+            </li>
           ))}
-        </div>
-      </section>
+        </Rows>
+      </Section>
 
-      {/* stack */}
-      <section className="space-y-8">
-        <SectionHead id="stack" eyebrow="Built on NEAR" title="What it stands on." />
-        <div className="ios-group md:columns-2 md:gap-0 [&>*]:break-inside-avoid">
+      <Section n="05" label="Built on NEAR" id="stack" title="What it stands on.">
+        <div className="grid border-t border-sep md:grid-cols-2 md:gap-x-10">
           {STACK.map((s) => (
-            <div key={s.name} className="ios-row items-start">
+            <div key={s.name} className="flex items-start gap-4 border-b border-sep py-3">
               <div className="flex-1">
                 <p className="font-medium">{s.name}</p>
                 <p className="text-sm text-label2">{s.what}</p>
               </div>
               {s.links.map(([label, href]) => (
-                <a key={href} href={href} target="_blank" rel="noreferrer" className="ios-link text-sm">{label} ↗</a>
+                <a key={href} href={href} target="_blank" rel="noreferrer" className="ios-link font-mono text-xs">{label} ↗</a>
               ))}
             </div>
           ))}
         </div>
-      </section>
+      </Section>
 
-      {/* run it */}
-      <section className="space-y-8">
-        <SectionHead id="run" eyebrow="Run it" title="Three commands, no wallet needed." sub="Real contracts and real token code in a local NEAR sandbox, with fake money." />
-        <div className="ios-card overflow-hidden">
-          <div className="flex items-center gap-1.5 border-b-[0.5px] border-sep px-4 py-3">
-            <span className="h-3 w-3 rounded-full bg-red" /><span className="h-3 w-3 rounded-full bg-orange" /><span className="h-3 w-3 rounded-full bg-green" />
-            <span className="ml-3 text-xs text-label2">Terminal</span>
-          </div>
-          <pre className="overflow-x-auto p-5 font-mono text-sm leading-relaxed">{`pnpm install
+      <Section n="06" label="Run it" id="run" title="Three commands, no wallet needed." sub="Real contracts and real token code in a local NEAR sandbox, with fake money.">
+        <pre className="overflow-x-auto border border-sep p-5 font-mono text-sm leading-relaxed">{`pnpm install
 pnpm demo:attack                  # the five situations above
 pnpm dev:chain                    # sandbox for the dashboard
 pnpm --filter @sentraio/web dev  # http://localhost:3000`}</pre>
-        </div>
-      </section>
+      </Section>
 
-      {/* limits */}
-      <section className="space-y-8">
-        <SectionHead id="limits" eyebrow="Honest limits" title="What it does not promise." />
-        <div className="ios-group">
-          {LIMITS.map((l) => (
-            <div key={l} className="ios-row items-start text-sm">
-              <span className="pill pill-orange flex-none">!</span>
+      <Section n="07" label="Honest limits" id="limits" title="What it does not promise.">
+        <Rows>
+          {LIMITS.map((l, i) => (
+            <li key={l} className="flex gap-6 py-3 text-sm">
+              <span className="mono-label w-6 shrink-0 pt-0.5">{pad(i)}</span>
               <span className="text-label2">{l}</span>
-            </div>
+            </li>
           ))}
-        </div>
-      </section>
+        </Rows>
+      </Section>
 
-      {/* faq */}
-      <section className="space-y-8">
-        <SectionHead id="faq" eyebrow="Questions" title="Questions judges should ask." />
-        <div className="ios-group">
+      <Section n="08" label="Questions" id="faq" title="Questions judges should ask.">
+        <div className="divide-y divide-sep border-y border-sep">
           {FAQ.map(([q, a]) => (
             <details key={q} className="group">
-              <summary className="ios-row cursor-pointer list-none justify-between font-medium">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-4 font-medium">
                 {q}
-                <span className="text-label3 transition-transform group-open:rotate-90">›</span>
+                <span className="font-mono text-label3 transition-transform group-open:rotate-45">+</span>
               </summary>
-              <p className="px-4 pb-4 text-sm text-label2">{a}</p>
+              <p className="max-w-2xl pb-5 text-sm text-label2">{a}</p>
             </details>
           ))}
         </div>
-      </section>
-
-      {/* floating demo bar */}
-      <div className="pointer-events-none sticky bottom-5 z-20 mb-28 flex justify-center">
-        <div className="ios-nav pointer-events-auto flex items-center gap-4 rounded-full border-[0.5px] border-sep py-2 pr-2 pl-5 shadow-lg">
-          <p className="text-sm font-medium">Play the agent and watch what gets through</p>
-          <Link href="/vault" className="ios-btn py-1.5 text-sm">Try it</Link>
-        </div>
-      </div>
+      </Section>
     </div>
   );
 }

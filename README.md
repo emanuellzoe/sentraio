@@ -8,6 +8,8 @@ Sentraio stops an AI agent on NEAR from paying the wrong account, even when the 
 
 Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), **Open Innovation**.
 
+Second, independent entry by the same builder: [Citario](https://github.com/emanuellzoe/citario), where agents pay authors per citation and a TEE-hosted model prices each request (tracks Privacy & Private AI, Agent Economy). The two share only the UI style and the receipt walker from Tx X-Ray.
+
 **Hosted demo:** https://sentraio.vercel.app (Tx X-Ray, Clearance dry-run and the vault dashboard against testnet; it holds no keys, so the agent simulator and the operator queue run locally, see below).
 
 **Live on NEAR testnet**

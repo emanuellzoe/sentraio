@@ -53,18 +53,27 @@ export function Operator() {
     }
   };
 
-  if (error && !data) {
+  if (!data && !error) return <Skeleton />;
+  if (!data || data.unavailable) {
+    // No Clearance service behind this deployment (the public demo holds no keys), or it cannot be reached.
     return (
-      <Notice title="Clearance service unreachable" tone="red">{error}. Is {'pnpm dev:chain'} running?</Notice>
-    );
-  }
-  if (!data) return <Skeleton />;
-  if (data.unavailable) {
-    return (
-      <Notice title="The operator queue runs next to the Clearance service">
-        This public demo holds no keys, so it has no Clearance service. Run it locally with <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm dev:chain</code> and{' '}
-        <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm web</code>, or watch it in the demo video and <code className="rounded bg-fill px-1.5 py-0.5 font-mono text-xs">pnpm demo:attack</code>.
-      </Notice>
+      <div className="grid gap-8 border-t border-sep pt-6 md:grid-cols-12 md:gap-10">
+        <p className="mono-label md:col-span-3">Local only</p>
+        <div className="space-y-6 md:col-span-9">
+          <h2 className="max-w-2xl text-2xl font-medium tracking-[-0.02em]">The operator queue runs next to the Clearance service, on your machine.</h2>
+          <p className="max-w-2xl text-label2">
+            This hosted demo holds no keys, so there is no Clearance service behind it and nothing can arrive in the queue. When a payment comes back as <span className="font-medium text-label">warn</span>, this page is where the vault owner approves or rejects it with a wallet signature. The agent cannot answer for itself.
+          </p>
+          <pre className="overflow-x-auto border border-sep p-5 font-mono text-sm leading-relaxed">{`pnpm install && pnpm build:contracts
+pnpm dev:chain      # local sandbox with the real contracts
+pnpm web            # this dashboard, now with the queue live`}</pre>
+          <p className="max-w-2xl text-sm text-label2">
+            Or read the transcript of the five situations, including the warn the owner approved:{' '}
+            <a className="ios-link" href="https://github.com/emanuellzoe/sentraio/blob/main/demo/attack/last-run.log" target="_blank" rel="noreferrer">demo/attack/last-run.log ↗</a>
+          </p>
+          {error && <p className="mono-label">Service error: {error}</p>}
+        </div>
+      </div>
     );
   }
 
