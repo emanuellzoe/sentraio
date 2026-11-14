@@ -1,5 +1,7 @@
 # Sentraio
 
+[![Sentraio: AI agents can hold money now. Sentraio decides what they may do with it.](docs/img/home.png)](https://sentraio.vercel.app)
+
 Sentraio stops an AI agent on NEAR from paying the wrong account, even when the agent itself has been prompt-injected or its code compromised. It has three parts:
 
 - **Clearance** checks the counterparty and simulates the payment before anything is signed.
@@ -11,6 +13,12 @@ Built for the NEAR Hackathon 2026. Tracks: **AI Security & Defense** (primary), 
 Second, independent entry by the same builder: [Citario](https://github.com/emanuellzoe/citario), where agents pay authors per citation and a TEE-hosted model prices each request (tracks Privacy & Private AI, Agent Economy). The two share only the UI style and the receipt walker from Tx X-Ray.
 
 **Hosted demo:** https://sentraio.vercel.app (Tx X-Ray, Clearance dry-run and the vault dashboard against testnet; it holds no keys, so the agent simulator and the operator queue run locally, see below).
+
+| Tx X-Ray: a real failed testnet transaction, explained | Vault: the live mandate, strikes and the panic switch |
+|---|---|
+| [![Tx X-Ray report](docs/img/xray.png)](https://sentraio.vercel.app/xray?tx=AoxsGoWSo4iefhHYg8NM6U3GachV3VEsG4JW1JpvwdrM&network=testnet) | [![Vault dashboard](docs/img/vault.png)](https://sentraio.vercel.app/vault) |
+| **Three layers: check, enforce, explain** | **The attack demo: one injected invoice, five situations** |
+| [![Clearance, Vault, Tx X-Ray](docs/img/layers.png)](https://sentraio.vercel.app/#layers) | [![Attack replay](docs/img/attack.png)](https://sentraio.vercel.app/#attack) |
 
 **Live on NEAR testnet**
 
