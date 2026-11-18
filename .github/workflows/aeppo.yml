@@ -1,0 +1,32 @@
+name: Security scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  aeppo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Scan with aeppo
+        uses: emanuellzoe/aeppo@d41323bd6f36265d42c6b08c551e1483410fc963 # v0.3.2
+        with:
+          format: sarif
+          output-file: aeppo.sarif
+
+      - name: Upload results to GitHub code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: aeppo.sarif
+          category: aeppo
