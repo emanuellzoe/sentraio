@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Scan with aeppo
-        uses: emanuellzoe/aeppo@fa4a886c9d1efba7d4b2cda4f31424f1a2095ca5 # v0.5.1
+        uses: emanuellzoe/aeppo@717ba6c443ace5a58a2ccd3ed4bfc8fa10371b36 # v0.6.0
         with:
           format: sarif
           output-file: aeppo.sarif
